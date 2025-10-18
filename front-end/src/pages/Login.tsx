@@ -1,5 +1,8 @@
 import Assets from '../assets/Logo.png';
+<<<<<<< HEAD
 import Camaro from '../assets/camaro.jpg';
+=======
+>>>>>>> 3822171 (Criação e implementação de funções sidebar)
 
 export default function Login() {
   return (
@@ -37,7 +40,10 @@ export default function Login() {
 
       {/*Lado Direito*/}
       <div className='bg-[#F7FAFC] flex flex-col justify-center items-center h-screen w-screen'>
+<<<<<<< HEAD
         <img src={Camaro} className='w-full h-full object-cover' alt="" />
+=======
+>>>>>>> 3822171 (Criação e implementação de funções sidebar)
       </div>
 
 

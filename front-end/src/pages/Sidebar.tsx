@@ -33,11 +33,4 @@ export default function Sidebar() {
             </div>
         </aside>
     );
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-
-=======
->>>>>>> c097c3f (Criação e implementação d funções sidebar)
->>>>>>> ca2b43c9d8683e76585fbb5a06bcb4cc6b4ff426
 }

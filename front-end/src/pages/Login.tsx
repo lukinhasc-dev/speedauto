@@ -1,12 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import Assets from '../assets/Logo.png';
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 import Camaro from '../assets/camaro.jpg';
-=======
->>>>>>> 3822171 (Criação e implementação de funções sidebar)
->>>>>>> ca2b43c9d8683e76585fbb5a06bcb4cc6b4ff426
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -50,16 +45,11 @@ export default function Login() {
 
       {/*Lado Direito*/}
       <div className='bg-[#F7FAFC] flex flex-col justify-center items-center h-screen w-screen'>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
+
         <img src={Camaro} className='w-full h-full object-cover' alt="" />
-=======
->>>>>>> 3822171 (Criação e implementação de funções sidebar)
->>>>>>> ca2b43c9d8683e76585fbb5a06bcb4cc6b4ff426
+
+
       </div>
-
-
     </div>
   )
 }

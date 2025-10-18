@@ -1,7 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import Sidebar from "./components/Sidebar";
+import Dashboard from "./pages/Dashboard";
+
+interface PlaceholderProps {
+  title: string;
+}
+
+const Placeholder: React.FC<PlaceholderProps> = ({ title }) => {
+  return <h1 className="text-3xl font-bold">{title}</h1>;
+}
 
 
 function App() {
@@ -9,8 +16,12 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/pagina-inicial" element={<Sidebar />} />
-        <Route path="/esqueci-senha" element={<ForgotPassword />} />
+        <Route path="/pagina-inicial" element={<Dashboard/>} />
+        <Route path="veiculos" element={<Placeholder title="Página de Veículos" />} />
+        <Route path="vendas" element={<Placeholder title="Página de Vendas" />} />
+        <Route path="clientes" element={<Placeholder title="Página de Clientes" />} />
+        <Route path="relatorios" element={<Placeholder title="Página de Relatórios" />} />
+        <Route path="configuracoes" element={<Placeholder title="Página de Configurações" />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,6 +1,14 @@
+import { useNavigate } from 'react-router-dom';
 import Assets from '../assets/Logo.png';
 
+
 export default function Login() {
+  const navigate = useNavigate();
+
+  const entrar = () => {
+    navigate("/pagina-inicial");
+  }
+
   return (
     <div className='flex h-screen w-screen'>
       <div className='bg-[#162334] flex flex-col justify-center items-center h-screen w-screen'>
@@ -29,16 +37,19 @@ export default function Login() {
               placeholder="Insira sua Senha"
               className='border bg-[#EDF2F7] border-gray-200 rounded-lg p-2 font-poppins mb-2'
             />
-            <button className='bg-[#1f52dc] text-white rounded-lg p-2 font-semibold mt-10'>Entrar</button>
+            <button onClick={entrar} className='bg-[#1f52dc] text-white rounded-lg p-2 font-semibold mt-10'>Entrar</button>
           </form>
         </div>
       </div>
 
       {/*Lado Direito*/}
       <div className='bg-[#F7FAFC] flex flex-col justify-center items-center h-screen w-screen'>
+
+        <img src={Camaro} className='w-full h-full object-cover' alt="" />
       </div>
 
 
+      </div>
     </div>
   )
 }

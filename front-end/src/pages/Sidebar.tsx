@@ -12,7 +12,7 @@ export default function Sidebar() {
         <aside className="bg-speedauto-sidebar text-gray-400 p-6 flex flex-col h-screen">
             <div className="flex items-center gap-2 text-white text-2xl font-bold mb-12">
                 <FaCarSide className="text-speedauto-red" />
-                <span>SPEEDAUTO</span>
+                <span>SPEEDAUTOo</span>
             </div>
 
             <nav className="flex-grow">

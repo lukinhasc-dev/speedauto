@@ -32,7 +32,6 @@ export default function Sidebar() {
                 </NavLink>
             </div>
         </aside>
-    )
-
+    );
 
 }

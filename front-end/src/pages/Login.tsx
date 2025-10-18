@@ -1,4 +1,8 @@
 import Assets from '../assets/Logo.png';
+<<<<<<< HEAD
+=======
+import Camaro from '../assets/camaro.jpg';
+>>>>>>> 7ea452dabadb55d588fef6c34b2c8f9b431602f8
 
 export default function Login() {
   return (
@@ -36,6 +40,10 @@ export default function Login() {
 
       {/*Lado Direito*/}
       <div className='bg-[#F7FAFC] flex flex-col justify-center items-center h-screen w-screen'>
+<<<<<<< HEAD
+=======
+        <img src={Camaro} className='w-full h-full object-cover' alt="" />
+>>>>>>> 7ea452dabadb55d588fef6c34b2c8f9b431602f8
       </div>
 
 

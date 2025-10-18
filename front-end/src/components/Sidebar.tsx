@@ -9,7 +9,7 @@ export default function Sidebar() {
         }`;
 
     return (
-        <aside className="bg-speedauto-sidebar text-gray-400 p-6 flex flex-col h-screen">
+        <aside className="bg-speedaut000000000000000000000000000000000000000000000000000000o-sidebar text-gray-400 p-6 flex flex-col h-screen">
             <div className="flex items-center gap-2 text-white text-2xl font-bold mb-12">
                 <FaCarSide className="text-speedauto-red" />
                 <span>SPEEDAUTO</span>

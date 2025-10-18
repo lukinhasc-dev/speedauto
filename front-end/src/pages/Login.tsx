@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import Assets from '../assets/Logo.png';
+import Camaro from '../assets/camaro.jpg';
 
 
 export default function Login() {
@@ -50,6 +51,5 @@ export default function Login() {
 
 
       </div>
-    </div>
   )
 }

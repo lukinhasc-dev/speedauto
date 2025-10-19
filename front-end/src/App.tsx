@@ -1,14 +1,15 @@
+// src/App.tsx
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
+import Veiculos from "./pages/Veiculos";
 
 interface PlaceholderProps {
   title: string;
 }
-
 const Placeholder: React.FC<PlaceholderProps> = ({ title }) => {
   return <h1 className="text-3xl font-bold">{title}</h1>;
 }
@@ -22,7 +23,7 @@ function App() {
 
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/veiculos" element={<Placeholder title="Página de Veículos" />} />
+        <Route path="/veiculos" element={<Veiculos />} />
         <Route path="/vendas" element={<Placeholder title="Página de Vendas" />} />
         <Route path="/clientes" element={<Placeholder title="Página de Clientes" />} />
         <Route path="/relatorios" element={<Placeholder title="Página de Relatórios" />} />

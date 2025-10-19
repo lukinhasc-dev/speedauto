@@ -1,14 +1,6 @@
 node_modules/
 dist/
 .env
-.env.*
-.DS_Store
-*.log
-coverage/
-*.local
-*.sublime-workspace
-*.sublime-project
-/.vscode/
-/.idea/
-tmp/
-*.tsbuildinfo
+npm-debug.log*
+.vscode/
+.idea/

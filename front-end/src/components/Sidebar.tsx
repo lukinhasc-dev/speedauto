@@ -32,7 +32,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="mt-auto">
-        <NavLink to="/login" className={navLinkClass}>
+        <NavLink to="/" className={navLinkClass}>
           <FaSignOutAlt /> Sair
         </NavLink>
       </div>

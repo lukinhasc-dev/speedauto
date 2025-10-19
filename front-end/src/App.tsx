@@ -9,6 +9,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import Veiculos from "./pages/Veiculos";
 import Vendas from "./pages/Vendas";
+import Clientes from "./pages/Clientes";
+import Relatorios from "./pages/Relatorios";
 
 interface PlaceholderProps {
   title: string;
@@ -33,8 +35,8 @@ function App() {
         <Route path="/veiculos" element={<Veiculos />} />
         <Route path="/vendas" element={<Vendas />} />
 
-        <Route path="/clientes" element={<Placeholder title="Página de Clientes" />} />
-        <Route path="/relatorios" element={<Placeholder title="Página de Relatórios" />} />
+        <Route path="/clientes" element={<Clientes/>} />
+        <Route path="/relatorios" element={<Relatorios/>} />
         <Route path="/configuracoes" element={<Placeholder title="Página de Configurações" />} />
       </Route>
 

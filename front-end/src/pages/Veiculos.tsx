@@ -53,12 +53,12 @@ export default function Veiculos() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('Todos');
     const [filterMarca, setFilterMarca] = useState<string>('Todas');
-
+    
     const availableMarcas = useMemo(() => {
         const marcas = vehicles.map(v => v.marca);
         return [...new Set(marcas)].sort();
     }, [vehicles]);
-
+    
     const filteredVehicles = useMemo(() => {
         let currentVehicles = vehicles;
         const lowerCaseSearch = searchTerm.toLowerCase();
@@ -98,14 +98,14 @@ export default function Veiculos() {
         const vehicleData = Object.fromEntries(formData.entries()) as Omit<Vehicle, 'id' | 'valor' | 'ano'> & { valor: string, ano: string };
 
         const newOrUpdatedVehicle: Vehicle = {
-            ...(selectedVehicle || {}),
+            ...(selectedVehicle || {}), 
             ...vehicleData,
             id: modalMode === 'add' ? Date.now() : selectedVehicle!.id,
             ano: parseInt(vehicleData.ano),
             valor: parseFloat(vehicleData.valor),
             status: vehicleData.status as Vehicle['status'],
         };
-
+        
         if (modalMode === 'add') {
             setVehicles([...vehicles, newOrUpdatedVehicle]);
         } else if (modalMode === 'edit' && selectedVehicle) {
@@ -154,8 +154,9 @@ export default function Veiculos() {
                         />
                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
                     </div>
-
-                    <select
+                    
+                    {/* FILTRO DE STATUS */}
+                    <select 
                         className="border border-gray-300 rounded-lg p-2 text-sm bg-white shadow-sm text-gray-700 focus:ring-1 focus:ring-speedauto-primary focus:border-speedauto-primary"
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
@@ -165,8 +166,8 @@ export default function Veiculos() {
                         <option value="Vendido">Vendido</option>
                         <option value="Em Manutenção">Em Manutenção</option>
                     </select>
-
-                    <select
+                    
+                    <select 
                         className="border border-gray-300 rounded-lg p-2 text-sm bg-white shadow-sm text-gray-700 focus:ring-1 focus:ring-speedauto-primary focus:border-speedauto-primary"
                         value={filterMarca}
                         onChange={(e) => setFilterMarca(e.target.value)}
@@ -262,7 +263,7 @@ export default function Veiculos() {
 
                         <div className="p-6 space-y-4">
                             <h3 className="text-xl font-bold text-gray-700 border-b pb-2 mb-4">{selectedVehicle.marca} {selectedVehicle.modelo}</h3>
-
+                            
                             <div className='grid grid-cols-2 gap-3'>
                                 <div className="p-4 bg-speedauto-primary/10 rounded-lg border border-speedauto-primary/30 col-span-2">
                                     <p className="text-sm font-medium text-speedauto-primary">VALOR DE VENDA</p>
@@ -270,7 +271,7 @@ export default function Veiculos() {
                                         {formatCurrency(selectedVehicle.valor)}
                                     </p>
                                 </div>
-
+                                
                                 <div className="p-4 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-between col-span-2">
                                     <div>
                                         <p className="text-sm font-medium text-gray-600">STATUS ATUAL</p>
@@ -281,15 +282,15 @@ export default function Veiculos() {
 
                                 <DetailItem label="Placa" value={selectedVehicle.placa} icon={<FaCarSide />} />
                                 <DetailItem label="Ano/Modelo" value={selectedVehicle.ano} icon={<FaCalendarAlt />} />
-
+                                
                                 <DetailItem label="Cor" value={selectedVehicle.cor || 'Não informado'} icon={<FaPalette />} />
                                 <DetailItem label="Combustível" value={selectedVehicle.combustivel || 'Não informado'} icon={<FaGasPump />} />
                             </div>
                         </div>
 
                         <div className="p-6 bg-gray-50 border-t rounded-b-lg flex justify-end gap-4">
-                            <button
-                                onClick={() => openModal('edit', selectedVehicle)}
+                            <button 
+                                onClick={() => openModal('edit', selectedVehicle)} 
                                 className="bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-all"
                             >
                                 <FaPencilAlt className='inline-block mr-1' /> Editar Dados
@@ -304,7 +305,7 @@ export default function Veiculos() {
 
             {(modalMode === 'add' || modalMode === 'edit') && (
                 <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4 transition-opacity duration-300">
-                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl animate-fade-in-up">
+                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl animate-fade-in-up"> 
 
                         <div className="flex justify-between items-center p-6 border-b">
                             <h2 className="text-2xl font-bold text-gray-800">{modalMode === 'add' ? 'Cadastrar Novo Veículo' : 'Editar Veículo'}</h2>

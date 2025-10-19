@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import { NavLink } from 'react-router-dom';
 import { 
-  FaTachometerAlt, FaCar, FaDollarSign, FaUsers, FaChartPie, FaCog, FaCarSide, FaSignOutAlt 
+  FaTachometerAlt, FaCar, FaDollarSign, FaUsers, FaChartPie, FaCog, FaCarSide, FaSignOutAlt,
 } from 'react-icons/fa';
 
 export default function Sidebar() {
@@ -13,7 +13,7 @@ export default function Sidebar() {
      }`;
 
   return (
-    <aside className="bg-blue-900 text-gray-400 p-6 flex flex-col h-screen">
+    <aside className="bg-speedauto-sidebar text-gray-400 p-6 flex flex-col h-screen">
       
       <div className="flex items-center gap-2 text-white text-2xl font-bold mb-12">
         <FaCarSide className="text-speedauto-red" />
@@ -32,7 +32,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="mt-auto">
-        <NavLink to="/login" className={navLinkClass}>
+        <NavLink to="/" className={navLinkClass}>
           <FaSignOutAlt /> Sair
         </NavLink>
       </div>

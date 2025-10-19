@@ -1,7 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+
+import Layout from "./components/Layout";
+import DashboardHeader from "./components/DashboardHeader";
+import MainHeader from "./components/MainHeader";
+
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
+import Dashboard from "./pages/Dashboard";
+import Veiculos from "./pages/Veiculos";
+import Vendas from "./pages/Vendas";
 
 interface PlaceholderProps {
   title: string;
@@ -11,21 +18,27 @@ const Placeholder: React.FC<PlaceholderProps> = ({ title }) => {
   return <h1 className="text-3xl font-bold">{title}</h1>;
 }
 
-
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/esqueci-senha" element={<ForgotPassword/>} />
-        <Route path="/pagina-inicial" element={<Dashboard/>} />
-        <Route path="veiculos" element={<Placeholder title="Página de Veículos" />} />
-        <Route path="vendas" element={<Placeholder title="Página de Vendas" />} />
-        <Route path="clientes" element={<Placeholder title="Página de Clientes" />} />
-        <Route path="relatorios" element={<Placeholder title="Página de Relatórios" />} />
-        <Route path="configuracoes" element={<Placeholder title="Página de Configurações" />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+
+      <Route path="/" element={<Login />} />
+      <Route path="/esqueci-senha" element={<ForgotPassword />} />
+
+      <Route element={<Layout HeaderComponent={DashboardHeader} />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Route>
+
+      <Route element={<Layout HeaderComponent={MainHeader} />}>
+        <Route path="/veiculos" element={<Veiculos />} />
+        <Route path="/vendas" element={<Vendas />} />
+
+        <Route path="/clientes" element={<Placeholder title="Página de Clientes" />} />
+        <Route path="/relatorios" element={<Placeholder title="Página de Relatórios" />} />
+        <Route path="/configuracoes" element={<Placeholder title="Página de Configurações" />} />
+      </Route>
+
+    </Routes>
   );
 }
 

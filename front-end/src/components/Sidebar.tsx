@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import { NavLink } from 'react-router-dom';
 import { 
-  FaTachometerAlt, FaCar, FaDollarSign, FaUsers, FaChartPie, FaCog, FaCarSide, FaSignOutAlt 
+  FaTachometerAlt, FaCar, FaDollarSign, FaUsers, FaChartPie, FaCog, FaCarSide, FaSignOutAlt,
 } from 'react-icons/fa';
 
 export default function Sidebar() {

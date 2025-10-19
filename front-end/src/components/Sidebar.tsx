@@ -13,7 +13,7 @@ export default function Sidebar() {
      }`;
 
   return (
-    <aside className="bg-blue-900 text-gray-400 p-6 flex flex-col h-screen">
+    <aside className="bg-speedauto-sidebar text-gray-400 p-6 flex flex-col h-screen">
       
       <div className="flex items-center gap-2 text-white text-2xl font-bold mb-12">
         <FaCarSide className="text-speedauto-red" />

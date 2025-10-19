@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
 
 interface PlaceholderProps {
   title: string;
@@ -16,6 +17,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/esqueci-senha" element={<ForgotPassword/>} />
         <Route path="/pagina-inicial" element={<Dashboard/>} />
         <Route path="veiculos" element={<Placeholder title="Página de Veículos" />} />
         <Route path="vendas" element={<Placeholder title="Página de Vendas" />} />

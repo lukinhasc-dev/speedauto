@@ -176,6 +176,21 @@ export default function Veiculos() {
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     };
 
+
+    //Função para Placa do Veículo
+    const [placa, setPlaca] = useState<string>('');
+
+const formatPlate = (value: string) => {
+  // remove tudo que não seja letra ou número
+  let v = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  // coloca hífen depois das 3 primeiras letras
+  if (v.length > 3) {
+    v = v.slice(0, 3) + '-' + v.slice(3, 7); // limita a 7 caracteres (ex: XXX-9999)
+  }
+  return v;
+};
+
+
     return (
         <>
             <div className="mb-6">
@@ -403,7 +418,7 @@ export default function Veiculos() {
 
                                         <div className="form-group">
                                             <label htmlFor="placa" className="block text-sm font-semibold mb-1 text-gray-700">Placa</label>
-                                            <input type="text" name="placa" defaultValue={selectedVehicle?.placa}
+                                            <input type="text" name="placa" value={placa} onChange={(e) => setPlaca(formatPlate(e.target.value))} defaultValue={selectedVehicle?.placa}
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
                                                 placeholder="Ex: RTA-4G55" required />
                                         </div>

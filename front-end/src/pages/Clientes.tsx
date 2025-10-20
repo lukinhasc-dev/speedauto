@@ -18,6 +18,7 @@ import type { Clientes } from "../types/Cliente";
 
 type ModalMode = "closed" | "add" | "edit" | "delete" | "view";
 type StatusCliente = "Lead" | "Ativo" | "Inativo";
+
 interface DetailItemProps {
   label: string;
   value: string | number | React.ReactNode;
@@ -50,7 +51,7 @@ const DetailItem: React.FC<DetailItemProps> = ({
             : "font-medium text-gray-800"
         }`}
       >
-        {value}
+        {value ?? "—"} {/* Garante que sempre tem algo pra renderizar */}
       </div>
     </div>
   </div>
@@ -64,30 +65,44 @@ export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("Todos");
 
+  // Buscar clientes
   useEffect(() => {
-  const fetchClients = async () => {
-    const data = await clientesApi.getClientes();
-    setClients(data);
-  };
-  fetchClients();
-}, [location.pathname]); // dispara quando muda de rota
+    const fetchClients = async () => {
+      try {
+        const data = await clientesApi.getClientes();
+        setClients(data ?? []);
+      } catch (err) {
+        console.error("Erro ao buscar clientes:", err);
+        setClients([]);
+      }
+    };
 
+    fetchClients();
+  }, []);
+
+  // Filtrar clientes
   const filteredClients = useMemo(() => {
-    let currentClients = clients;
-    const lowerCaseSearch = searchTerm.toLowerCase();
+    let currentClients = clients ?? [];
+    const lowerCaseSearch = String(searchTerm ?? '').toLowerCase();
 
     if (filterStatus !== "Todos") {
       currentClients = currentClients.filter((c) => c.status === filterStatus);
     }
 
-    if (searchTerm) {
-      currentClients = currentClients.filter(
-        (c) =>
-          c.nome.toLowerCase().includes(lowerCaseSearch) ||
-          c.email.toLowerCase().includes(lowerCaseSearch) ||
-          c.telefone.toLowerCase().includes(lowerCaseSearch) ||
-          c.id.toString().includes(lowerCaseSearch)
-      );
+    if (lowerCaseSearch) {
+      currentClients = currentClients.filter((c) => {
+        const nome = c.nome ? String(c.nome).toLowerCase() : '';
+        const email = c.email ? String(c.email).toLowerCase() : '';
+        const telefone = c.telefone ? String(c.telefone).toLowerCase() : '';
+        const idStr = c.id != null ? String(c.id).toLowerCase() : '';
+
+        return (
+          nome.includes(lowerCaseSearch) ||
+          email.includes(lowerCaseSearch) ||
+          telefone.includes(lowerCaseSearch) ||
+          idStr.includes(lowerCaseSearch)
+        );
+      });
     }
 
     return currentClients;
@@ -97,57 +112,62 @@ export default function Clientes() {
     setModalMode(mode);
     setSelectedClient(client);
   };
+
   const closeModal = () => {
     setModalMode("closed");
     setSelectedClient(null);
   };
 
   const handleSaveClient = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formData = new FormData(e.currentTarget);
-  const clientData = Object.fromEntries(formData.entries()) as Record<string, string>;
+    const formData = new FormData(e.currentTarget);
+    const clientData = Object.fromEntries(formData.entries()) as Record<
+      string,
+      string
+    >;
 
-  // Cria novo cliente
-  const newOrUpdatedClient: Clientes = {
-    id: modalMode === "add" ? Date.now() : selectedClient?.id ?? 0,
-    nome: clientData.nome || selectedClient?.nome || "",
-    email: clientData.email || selectedClient?.email || "",
-    telefone: clientData.telefone || selectedClient?.telefone || "",
-    status: (clientData.status as Clientes["status"]) || selectedClient?.status || "Ativo",
+    const newOrUpdatedClient: Clientes = {
+      id: modalMode === "add" ? Date.now() : selectedClient?.id ?? 0,
+      nome: clientData.nome || selectedClient?.nome || "",
+      email: clientData.email || selectedClient?.email || "",
+      telefone: clientData.telefone || selectedClient?.telefone || "",
+      status:
+        (clientData.status as Clientes["status"]) ||
+        selectedClient?.status ||
+        "Ativo",
+    };
+
+    try {
+      let savedClient: Clientes;
+
+      if (modalMode === "add") {
+        savedClient = await clientesApi.addCliente({
+          nome: newOrUpdatedClient.nome,
+          email: newOrUpdatedClient.email,
+          telefone: newOrUpdatedClient.telefone,
+          status: newOrUpdatedClient.status,
+        });
+        setClients([...clients, savedClient]);
+      } else if (modalMode === "edit" && selectedClient) {
+        savedClient = await clientesApi.updateCliente(selectedClient.id, {
+          nome: newOrUpdatedClient.nome,
+          email: newOrUpdatedClient.email,
+          telefone: newOrUpdatedClient.telefone,
+          status: newOrUpdatedClient.status,
+        });
+        setClients(
+          clients.map((c) => (c.id === selectedClient.id ? savedClient : c))
+        );
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error("Erro ao salvar cliente:", err);
+      alert("Ocorreu um erro ao salvar o cliente. Veja o console.");
+    }
   };
 
-  try {
-    let savedClient: Clientes;
-
-    if (modalMode === "add") {
-      savedClient = await clientesApi.addCliente({
-        nome: newOrUpdatedClient.nome,
-        email: newOrUpdatedClient.email,
-        telefone: newOrUpdatedClient.telefone,
-        status: newOrUpdatedClient.status,
-      });
-      setClients([...clients, savedClient]); // adiciona ao state
-    } else if (modalMode === "edit" && selectedClient) {
-      savedClient = await clientesApi.updateCliente(selectedClient.id, {
-        nome: newOrUpdatedClient.nome,
-        email: newOrUpdatedClient.email,
-        telefone: newOrUpdatedClient.telefone,
-        status: newOrUpdatedClient.status,
-      });
-      setClients(
-        clients.map((c) => (c.id === selectedClient.id ? savedClient : c))
-      );
-    }
-
-    closeModal();
-  } catch (err) {
-    console.error("Erro ao salvar cliente:", err);
-    alert("Ocorreu um erro ao salvar o cliente. Veja o console.");
-  }
-};
-
-  // Excluir Cliente
   const handleDeleteClient = async () => {
     if (selectedClient) {
       await clientesApi.deleteCliente(selectedClient.id);
@@ -157,6 +177,7 @@ export default function Clientes() {
   };
 
   const getInitials = (name: string) => {
+    if (!name) return "?";
     const parts = name.split(" ");
     if (parts.length > 1) {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
@@ -173,7 +194,9 @@ export default function Clientes() {
 
     return (
       <span
-        className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[status]}`}
+        className={`px-3 py-1 text-xs font-semibold rounded-full ${
+          styles[status] ?? "bg-gray-100 text-gray-700"
+        }`}
       >
         {status}
       </span>
@@ -189,6 +212,7 @@ export default function Clientes() {
         </p>
       </div>
 
+      {/* Filtros e Adicionar Cliente */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -236,7 +260,6 @@ export default function Clientes() {
               <th className="p-4 text-left text-xs font-semibold uppercase text-gray-600">
                 Telefone
               </th>
-              
               <th className="p-4 text-left text-xs font-semibold uppercase text-gray-600">
                 Status
               </th>
@@ -258,21 +281,16 @@ export default function Clientes() {
                     </div>
                     <div>
                       <div className="font-semibold text-gray-800">
-                        {client.nome}
+                        {client.nome ?? "—"}
                       </div>
                       <div className="text-xs text-gray-500">
-                        ID: {client.id}
+                        ID: {client.id ?? "—"}
                       </div>
                     </div>
                   </td>
-                  <td className="p-4 text-sm text-gray-700">{client.email}</td>
-                  <td className="p-4 text-sm text-gray-700">
-                    {client.telefone}
-                  </td>
-                  <td className="p-4 text-sm">
-                    {renderStatusBadge(client.status)}
-                  </td>
-
+                  <td className="p-4 text-sm text-gray-700">{client.email ?? "—"}</td>
+                  <td className="p-4 text-sm text-gray-700">{client.telefone ?? "—"}</td>
+                  <td className="p-4 text-sm">{renderStatusBadge(client.status)}</td>
                   <td className="p-4 text-sm">
                     <div className="flex items-center justify-center gap-2">
                       <button
@@ -328,42 +346,34 @@ export default function Clientes() {
         </table>
       </div>
 
+      {/* Modais */}
       {(modalMode === "add" || modalMode === "edit") && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4 transition-opacity duration-300">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl animate-fade-in-up">
             <div className="flex justify-between items-center p-6 border-b">
               <h2 className="text-2xl font-bold text-gray-800">
-                {modalMode === "add"
-                  ? "Cadastrar Novo Cliente"
-                  : "Editar Cliente"}
+                {modalMode === "add" ? "Cadastrar Novo Cliente" : "Editar Cliente"}
               </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-700 p-1"
-              >
+              <button onClick={closeModal} className="text-gray-400 hover:text-gray-700 p-1">
                 <FaTimes size={20} />
               </button>
             </div>
 
             <form onSubmit={handleSaveClient}>
               <div className="p-6 space-y-8">
-                {/* Detalhes do Cliente */}
                 <div className="border border-gray-200 p-6 rounded-lg">
                   <h3 className="text-lg font-bold text-gray-800 mb-4">
                     1. Detalhes de Contato
                   </h3>
                   <div className="grid grid-cols-2 gap-5">
                     <div className="form-group">
-                      <label
-                        htmlFor="nome"
-                        className="block text-sm font-semibold mb-1 text-gray-700"
-                      >
+                      <label htmlFor="nome" className="block text-sm font-semibold mb-1 text-gray-700">
                         Nome Completo
                       </label>
                       <input
                         type="text"
                         name="nome"
-                        defaultValue={selectedClient?.nome}
+                        defaultValue={selectedClient?.nome ?? ""}
                         className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
                         placeholder="Ex: Maria Souza"
                         required
@@ -371,16 +381,13 @@ export default function Clientes() {
                     </div>
 
                     <div className="form-group">
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-semibold mb-1 text-gray-700"
-                      >
+                      <label htmlFor="email" className="block text-sm font-semibold mb-1 text-gray-700">
                         Email
                       </label>
                       <input
                         type="email"
                         name="email"
-                        defaultValue={selectedClient?.email}
+                        defaultValue={selectedClient?.email ?? ""}
                         className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
                         placeholder="Ex: maria@email.com"
                         required
@@ -388,16 +395,13 @@ export default function Clientes() {
                     </div>
 
                     <div className="form-group">
-                      <label
-                        htmlFor="telefone"
-                        className="block text-sm font-semibold mb-1 text-gray-700"
-                      >
+                      <label htmlFor="telefone" className="block text-sm font-semibold mb-1 text-gray-700">
                         Telefone
                       </label>
                       <input
                         type="text"
                         name="telefone"
-                        defaultValue={selectedClient?.telefone}
+                        defaultValue={selectedClient?.telefone ?? ""}
                         className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
                         placeholder="Ex: (11) 99999-9999"
                         required
@@ -405,10 +409,7 @@ export default function Clientes() {
                     </div>
 
                     <div className="form-group">
-                      <label
-                        htmlFor="status"
-                        className="block text-sm font-semibold mb-1 text-gray-700"
-                      >
+                      <label htmlFor="status" className="block text-sm font-semibold mb-1 text-gray-700">
                         Status
                       </label>
                       <select
@@ -426,7 +427,6 @@ export default function Clientes() {
                 </div>
               </div>
 
-              {/* Rodapé do Modal (Ações) */}
               <div className="p-6 bg-gray-50 border-t rounded-b-lg flex justify-end gap-4">
                 <button
                   type="button"
@@ -439,14 +439,8 @@ export default function Clientes() {
                   type="submit"
                   className="bg-speedauto-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-speedauto-primary-hover transition-all"
                 >
-                  {modalMode === "add" ? (
-                    <FaPlus size={14} className="inline-block mr-2" />
-                  ) : (
-                    <FaPencilAlt size={14} className="inline-block mr-2" />
-                  )}
-                  {modalMode === "add"
-                    ? "Cadastrar Cliente"
-                    : "Salvar Alterações"}
+                  {modalMode === "add" ? <FaPlus size={14} className="inline-block mr-2" /> : <FaPencilAlt size={14} className="inline-block mr-2" />}
+                  {modalMode === "add" ? "Cadastrar Cliente" : "Salvar Alterações"}
                 </button>
               </div>
             </form>
@@ -459,20 +453,16 @@ export default function Clientes() {
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg animate-fade-in-up">
             <div className="flex justify-between items-center p-6 border-b bg-gray-50">
               <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                <FaUser className="text-speedauto-primary" /> Detalhes do
-                Cliente
+                <FaUser className="text-speedauto-primary" /> Detalhes do Cliente
               </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-700 p-1"
-              >
+              <button onClick={closeModal} className="text-gray-400 hover:text-gray-700 p-1">
                 <FaTimes size={20} />
               </button>
             </div>
 
             <div className="p-4 space-y-4">
               <h3 className="text-xl font-bold text-gray-700 border-b pb-2 mb-4">
-                {selectedClient.nome}
+                {selectedClient.nome ?? "—"}
               </h3>
 
               <div className="grid grid-cols-1 gap-2">
@@ -480,25 +470,23 @@ export default function Clientes() {
                   label="Status Atual"
                   value={renderStatusBadge(selectedClient.status)}
                   icon={<FaClipboardCheck />}
-                  highlight={
-                    selectedClient.status === "Ativo" ||
+                  highlight={selectedClient.status === "Ativo" ||
                     selectedClient.status === "Lead"
                   }
                 />
                 <DetailItem
                   label="ID Cliente"
-                  value ={selectedClient.id}
+                  value={selectedClient.id ?? "—"}
                   icon={<FaInfoCircle />}
                 />
-
                 <DetailItem
                   label="E-mail"
-                  value={selectedClient.email}
+                  value={selectedClient.email ?? "—"}
                   icon={<FaEnvelope />}
                 />
                 <DetailItem
                   label="Telefone"
-                  value={selectedClient.telefone}
+                  value={selectedClient.telefone ?? "—"}
                   icon={<FaPhone />}
                 />
               </div>
@@ -526,9 +514,7 @@ export default function Clientes() {
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4 transition-opacity duration-300">
           <div className="bg-white rounded-lg shadow-2xl w-full max-w-md animate-fade-in-up">
             <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Excluir Cliente
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-800">Excluir Cliente</h2>
               <p className="text-gray-600 mt-4">
                 Tem certeza que deseja excluir o registro de{" "}
                 <strong>{selectedClient.nome}</strong>?
@@ -558,3 +544,5 @@ export default function Clientes() {
     </>
   );
 }
+                
+                

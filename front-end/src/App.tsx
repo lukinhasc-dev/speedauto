@@ -13,13 +13,6 @@ import Clientes from "./pages/Clientes";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
 
-interface PlaceholderProps {
-  title: string;
-}
-
-const Placeholder: React.FC<PlaceholderProps> = ({ title }) => {
-  return <h1 className="text-3xl font-bold">{title}</h1>;
-}
 
 function App() {
   return (

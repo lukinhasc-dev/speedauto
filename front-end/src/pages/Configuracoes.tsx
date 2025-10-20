@@ -1,5 +1,5 @@
-import React, { useState, type FormEvent, useMemo } from 'react';
-import { FaUser, FaLock, FaBell, FaSave, FaTimes, FaUpload, FaTrash, FaPencilAlt, FaCheckCircle } from 'react-icons/fa';
+import React, { useState, type FormEvent} from 'react';
+import { FaUser, FaLock, FaBell, FaSave, FaUpload, FaTrash, FaCheckCircle } from 'react-icons/fa';
 
 // --- Interfaces ---
 interface UserProfile {
@@ -33,7 +33,7 @@ const ToggleSwitch: React.FC<ToggleProps> = ({ label, description, checked, onCh
 
 export default function Configuracoes() {
     const [activeTab, setActiveTab] = useState<'perfil' | 'seguranca' | 'notificacoes'>('perfil');
-
+    
     // --- ESTADOS MOCKADOS DO USUÁRIO ---
     const [profile, setProfile] = useState<UserProfile>({
         nome: 'Usuário Principal',
@@ -67,8 +67,8 @@ export default function Configuracoes() {
         }
 
         if (String(newPass).length < 6) {
-            alert('A nova senha deve ter pelo menos 6 caracteres.');
-            return;
+             alert('A nova senha deve ter pelo menos 6 caracteres.');
+             return;
         }
 
         alert('Senha alterada com sucesso! (Simulação)');
@@ -88,7 +88,7 @@ export default function Configuracoes() {
             </div>
 
             <div className="bg-white rounded-lg shadow-xl border border-gray-200">
-
+                
                 {/* Navegação por abas */}
                 <div className="flex border-b border-gray-200 p-2">
                     <button
@@ -118,7 +118,7 @@ export default function Configuracoes() {
                     {activeTab === 'perfil' && (
                         <form onSubmit={handleProfileSubmit}>
                             <div className="p-6 space-y-8">
-
+                                
                                 {/*Avatar */}
                                 <div className="border border-gray-200 p-6 rounded-lg">
                                     <h3 className="text-lg font-bold text-gray-800 mb-4">Avatar e Foto</h3>
@@ -139,22 +139,22 @@ export default function Configuracoes() {
                                 <div className="border border-gray-200 p-6 rounded-lg">
                                     <h3 className="text-lg font-bold text-gray-800 mb-4">Informações Pessoais</h3>
                                     <div className="grid grid-cols-2 gap-6">
-
+                                        
                                         <div className="form-group">
                                             <label htmlFor="nome" className="block text-sm font-semibold mb-1 text-gray-700">Nome Completo</label>
-                                            <input type="text" name="nome" defaultValue={profile.nome} onChange={(e) => setProfile({ ...profile, nome: e.target.value })}
+                                            <input type="text" name="nome" defaultValue={profile.nome} onChange={(e) => setProfile({...profile, nome: e.target.value})}
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" required />
                                         </div>
-
+                                        
                                         <div className="form-group">
                                             <label htmlFor="email" className="block text-sm font-semibold mb-1 text-gray-700">E-mail</label>
-                                            <input type="email" name="email" defaultValue={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                                            <input type="email" name="email" defaultValue={profile.email} onChange={(e) => setProfile({...profile, email: e.target.value})}
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" required />
                                         </div>
-
+                                        
                                         <div className="form-group">
                                             <label htmlFor="telefone" className="block text-sm font-semibold mb-1 text-gray-700">Telefone</label>
-                                            <input type="text" name="telefone" defaultValue={profile.telefone} onChange={(e) => setProfile({ ...profile, telefone: e.target.value })}
+                                            <input type="text" name="telefone" defaultValue={profile.telefone} onChange={(e) => setProfile({...profile, telefone: e.target.value})}
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" />
                                         </div>
 
@@ -162,7 +162,7 @@ export default function Configuracoes() {
                                 </div>
 
                             </div>
-
+                            
                             {/* Rodapé save*/}
                             <div className="p-4 bg-gray-50 border-t rounded-b-lg flex justify-end">
                                 <button type="submit" className="bg-speedauto-primary text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-speedauto-primary-hover transition-all shadow-md">
@@ -174,26 +174,26 @@ export default function Configuracoes() {
 
                     {/* --- SEGURANÇA --- */}
                     {activeTab === 'seguranca' && (
-                        <form onSubmit={handlePasswordSubmit}>
+                         <form onSubmit={handlePasswordSubmit}>
                             <div className="p-6 space-y-8">
 
                                 <div className="border border-gray-200 p-6 rounded-lg">
                                     <h3 className="text-lg font-bold text-gray-800 mb-4">Alterar Senha</h3>
                                     <p className="text-sm text-gray-500 mb-6">Mantenha sua conta segura usando uma senha forte e única.</p>
-
+                                    
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="form-group md:col-span-2">
                                             <label htmlFor="senha-atual" className="block text-sm font-semibold mb-1 text-gray-700">Senha Atual</label>
                                             <input type="password" name="senha-atual" placeholder='••••••' required
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" />
                                         </div>
-
+                                        
                                         <div className="form-group">
                                             <label htmlFor="nova-senha" className="block text-sm font-semibold mb-1 text-gray-700">Nova Senha</label>
                                             <input type="password" name="nova-senha" placeholder='••••••' required
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" />
                                         </div>
-
+                                        
                                         <div className="form-group">
                                             <label htmlFor="confirmar-senha" className="block text-sm font-semibold mb-1 text-gray-700">Confirmar Nova Senha</label>
                                             <input type="password" name="confirmar-senha" placeholder='••••••' required
@@ -201,7 +201,7 @@ export default function Configuracoes() {
                                         </div>
                                     </div>
                                 </div>
-
+                                
                                 <div className="border border-gray-200 p-6 rounded-lg">
                                     <h3 className="text-lg font-bold text-gray-800 mb-4">Autenticação de Dois Fatores</h3>
                                     <div className="flex items-center justify-between">
@@ -229,21 +229,21 @@ export default function Configuracoes() {
                             <div className="border border-gray-200 p-6 rounded-lg">
                                 <h3 className="text-lg font-bold text-gray-800 mb-4">Notificações por E-mail</h3>
                                 <p className="text-sm text-gray-500 mb-4">Escolha quais atualizações de sistema você deseja receber.</p>
-
-                                <ToggleSwitch
-                                    label="Novos Leads"
+                                
+                                <ToggleSwitch 
+                                    label="Novos Leads" 
                                     description="Receber um alerta imediato quando um novo lead ou contato entrar no CRM."
                                     checked={notifications.emailLeads}
                                     onChange={() => handleNotificationToggle('emailLeads')}
                                 />
-                                <ToggleSwitch
-                                    label="Vendas Concluídas"
+                                <ToggleSwitch 
+                                    label="Vendas Concluídas" 
                                     description="Receber uma confirmação sempre que uma transação for marcada como 'Concluída'."
                                     checked={notifications.emailVendas}
                                     onChange={() => handleNotificationToggle('emailVendas')}
                                 />
-                                <ToggleSwitch
-                                    label="Resumo Diário de Atividades"
+                                <ToggleSwitch 
+                                    label="Resumo Diário de Atividades" 
                                     description="Receber um e-mail consolidado no final do dia com as estatísticas."
                                     checked={notifications.resumoDiario}
                                     onChange={() => handleNotificationToggle('resumoDiario')}

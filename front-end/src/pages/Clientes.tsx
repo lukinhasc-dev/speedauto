@@ -70,7 +70,7 @@ export default function Clientes() {
     setClients(data);
   };
   fetchClients();
-}, [location.pathname]); // dispara quando muda de rota
+});
 
   const filteredClients = useMemo(() => {
     let currentClients = clients;

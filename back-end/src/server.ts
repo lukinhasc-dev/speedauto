@@ -17,7 +17,8 @@ app.use(express.json());
 app.use('/veiculos', veiculosRoutes);
 app.use('/vendas', vendasRoutes);
 app.use('/clientes', clientesRoutes);
-app.use('/users', userRoutes);
+app.use('/login', userRoutes);
+
 
 (async () => {
   try {

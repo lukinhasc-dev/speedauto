@@ -9,6 +9,7 @@ export interface Vendas {
     data: string;
     valor: number;
     status: StatusVendas;
+    observacoes: string;
 }
 
 export async function getVendas(): Promise<Vendas[]> {
@@ -38,4 +39,13 @@ export async function updateVenda(id: number, venda: Partial<Vendas>): Promise<V
 export async function deleteVenda(id: number): Promise<void> {
   const { error } = await supabase.from('vendas').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function searchVendas(term: string): Promise<Vendas[]> {
+  const { data, error } = await supabase
+    .from('vendas')
+    .select('*')
+    .or(`veiculo.ilike.%${term}%,cliente.ilike.%${term}%`);
+  if (error) throw error;
+  return data as Vendas[];
 }

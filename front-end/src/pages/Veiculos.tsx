@@ -1,25 +1,7 @@
-import React, { useState, type FormEvent, useMemo } from 'react';
+import React, { useState, type FormEvent, useMemo, useEffect } from 'react';
 import { FaPlus, FaEye, FaPencilAlt, FaTrash, FaTimes, FaCar, FaSearch, FaInfoCircle, FaCalendarAlt, FaPalette, FaGasPump, FaClipboardCheck, FaCarSide } from 'react-icons/fa';
-
-interface Vehicle {
-    id: number;
-    marca: string;
-    modelo: string;
-    ano: number;
-    placa: string;
-    valor: number;
-    status: 'Disponível' | 'Vendido' | 'Em Manutenção';
-    cor?: string;
-    combustivel?: string;
-}
-
-const MOCK_VEHICLES: Vehicle[] = [
-    { id: 1, marca: 'BMW', modelo: '320i', ano: 2022, placa: 'RTA-4G55', valor: 150000, status: 'Disponível', cor: 'Preto', combustivel: 'Gasolina' },
-    { id: 2, marca: 'Fiat', modelo: 'Toro', ano: 2023, placa: 'XYZ-1234', valor: 145000, status: 'Disponível', cor: 'Branco', combustivel: 'Diesel' },
-    { id: 3, marca: 'Hyundai', modelo: 'HB20', ano: 2023, placa: 'JKL-4567', valor: 85000, status: 'Vendido', cor: 'Prata', combustivel: 'Flex' },
-    { id: 4, marca: 'BMW', modelo: 'X3', ano: 2024, placa: 'ASD-9999', valor: 350000, status: 'Em Manutenção', cor: 'Azul', combustivel: 'Diesel' },
-    { id: 5, marca: 'Ford', modelo: 'Ranger', ano: 2021, placa: 'QWE-0001', valor: 180000, status: 'Disponível', cor: 'Preto', combustivel: 'Diesel' },
-];
+import type { Veiculos } from '../types/Veiculo';
+import * as veiculosApi from '../api/veiculosApi';
 
 type ModalMode = 'closed' | 'add' | 'edit' | 'delete' | 'view';
 
@@ -46,13 +28,27 @@ const DetailItem: React.FC<DetailItemProps> = ({ label, value, icon, highlight =
 
 
 export default function Veiculos() {
-    const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+    const [vehicles, setVehicles] = useState<Veiculos[]>([]);
     const [modalMode, setModalMode] = useState<ModalMode>('closed');
-    const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+    const [selectedVehicle, setSelectedVehicle] = useState<Veiculos | null>(null);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('Todos');
     const [filterMarca, setFilterMarca] = useState<string>('Todas');
+
+
+    useEffect(() => {
+        const fetchVehicles = async () => {
+            try {
+                const allVehicles = await veiculosApi.getVeiculos();
+                setVehicles(allVehicles);
+            } catch (err) {
+                console.error('Erro ao buscar veículos:', err);
+            }
+        };
+
+        fetchVehicles();
+    }, []);
     
     const availableMarcas = useMemo(() => {
         const marcas = vehicles.map(v => v.marca);
@@ -83,7 +79,7 @@ export default function Veiculos() {
     }, [vehicles, searchTerm, filterStatus, filterMarca]);
 
 
-    const openModal = (mode: ModalMode, vehicle: Vehicle | null = null) => {
+    const openModal = (mode: ModalMode, vehicle: Veiculos | null = null) => {
         setModalMode(mode);
         setSelectedVehicle(vehicle);
     };
@@ -92,38 +88,83 @@ export default function Veiculos() {
         setSelectedVehicle(null);
     };
 
-    const handleSaveVehicle = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const vehicleData = Object.fromEntries(formData.entries()) as Omit<Vehicle, 'id' | 'valor' | 'ano'> & { valor: string, ano: string };
+    const handleSaveVehicle = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-        const newOrUpdatedVehicle: Vehicle = {
-            ...(selectedVehicle || {}), 
-            ...vehicleData,
-            id: modalMode === 'add' ? Date.now() : selectedVehicle!.id,
-            ano: parseInt(vehicleData.ano),
-            valor: parseFloat(vehicleData.valor),
-            status: vehicleData.status as Vehicle['status'],
+    try {
+        const formData = new FormData(e.currentTarget);
+        const formDataObj = Object.fromEntries(formData.entries());
+
+        // Validação básica dos campos obrigatórios
+        const requiredFields = ['marca', 'modelo', 'placa', 'ano', 'valor'];
+        for (const field of requiredFields) {
+            if (!formDataObj[field] || String(formDataObj[field]).trim() === '') {
+                alert(`O campo "${field}" é obrigatório.`);
+                return;
+            }
+        }
+
+        // Conversão dos campos numéricos corretamente
+        const ano = parseInt(formDataObj.ano as string);
+        const valor_venda = parseFloat(formDataObj.valor as string);
+
+        if (isNaN(ano)) {
+            alert('Ano inválido.');
+            return;
+        }
+        if (isNaN(valor_venda)) {
+            alert('Valor de venda inválido.');
+            return;
+        }
+
+        const vehicleData: Omit<Veiculos, 'id'> = {
+            marca: String(formDataObj.marca),
+            modelo: String(formDataObj.modelo),
+            cor: String(formDataObj.cor || ''),
+            combustivel: String(formDataObj.combustivel || ''),
+            placa: String(formDataObj.placa),
+            status: String(formDataObj.status) as Veiculos['status'],
+            valor_venda,
+            ano,
         };
-        
+
+        let savedVehicle: Veiculos;
+
         if (modalMode === 'add') {
-            setVehicles([...vehicles, newOrUpdatedVehicle]);
+            savedVehicle = await veiculosApi.addVeiculo(vehicleData);
+            setVehicles(prev => [...prev, savedVehicle]);
         } else if (modalMode === 'edit' && selectedVehicle) {
-            setVehicles(vehicles.map(v => v.id === selectedVehicle.id ? newOrUpdatedVehicle : v));
+            savedVehicle = await veiculosApi.updateVeiculo(selectedVehicle.id, vehicleData);
+            setVehicles(prev => prev.map(v => v.id === selectedVehicle.id ? savedVehicle : v));
         }
 
         closeModal();
-    };
 
-    const handleDeleteVehicle = () => {
-        if (selectedVehicle) {
-            setVehicles(vehicles.filter(v => v.id !== selectedVehicle.id));
+    } catch (error) {
+        console.error('Erro ao salvar veículo:', error);
+        alert('Ocorreu um erro ao salvar o veículo. Verifique o console para mais detalhes.');
+    }
+};
+
+    const handleDeleteVehicle = async () => {
+        if (!selectedVehicle) return;
+
+        try {
+            // Chamada à API para excluir o veículo
+            await veiculosApi.deleteVeiculo(selectedVehicle.id);
+            setVehicles(prev => prev.filter(v => v.id !== selectedVehicle.id));
+
+            //Fechando o Model
             closeModal();
+
+        } catch (error) {
+            console.error('Erro ao excluir veículo:', error);
+            alert('Ocorreu um erro ao excluir o veículo. Por favor, tente novamente.');
         }
     };
 
-    const renderStatusBadge = (status: Vehicle['status']) => {
-        const styles = {
+    const renderStatusBadge = (status: Veiculos['status']) => {
+        const styles: Record<Veiculos['status'], string> = {
             'Disponível': 'bg-green-100 text-green-700',
             'Vendido': 'bg-red-100 text-red-700',
             'Em Manutenção': 'bg-yellow-100 text-yellow-700',
@@ -212,7 +253,7 @@ export default function Veiculos() {
                                     </td>
                                     <td className="p-4 text-sm text-gray-700 font-mono">{veiculo.placa}</td>
                                     <td className="p-4 text-sm text-gray-700">{veiculo.ano}</td>
-                                    <td className="p-4 text-sm text-gray-800 font-semibold">{formatCurrency(veiculo.valor)}</td>
+                                    <td className="p-4 text-sm text-gray-800 font-semibold">{formatCurrency(veiculo.valor_venda)}</td>
                                     <td className="p-4 text-sm">{renderStatusBadge(veiculo.status)}</td>
 
                                     <td className="p-4 text-sm">
@@ -268,7 +309,7 @@ export default function Veiculos() {
                                 <div className="p-4 bg-speedauto-primary/10 rounded-lg border border-speedauto-primary/30 col-span-2">
                                     <p className="text-sm font-medium text-speedauto-primary">VALOR DE VENDA</p>
                                     <p className="text-3xl font-extrabold text-speedauto-primary mt-1">
-                                        {formatCurrency(selectedVehicle.valor)}
+                                        {formatCurrency(selectedVehicle.valor_venda)}
                                     </p>
                                 </div>
                                 
@@ -369,7 +410,7 @@ export default function Veiculos() {
 
                                         <div className="form-group">
                                             <label htmlFor="valor" className="block text-sm font-semibold mb-1 text-gray-700">Valor de Venda (R$)</label>
-                                            <input type="number" step="0.01" name="valor" defaultValue={selectedVehicle?.valor}
+                                            <input type="number" step="0.01" name="valor" defaultValue={selectedVehicle?.valor_venda}
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
                                                 placeholder="Ex: 150000.00" required />
                                         </div>

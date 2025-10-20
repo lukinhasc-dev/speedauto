@@ -12,7 +12,7 @@ export interface Veiculos {
     combustivel: string;
     placa: string;
     valor_venda: number;
-    disponivel: StatusVeiculo;
+    status: StatusVeiculo;
 }
 
 

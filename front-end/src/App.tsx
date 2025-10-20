@@ -11,6 +11,7 @@ import Veiculos from "./pages/Veiculos";
 import Vendas from "./pages/Vendas";
 import Clientes from "./pages/Clientes";
 import Relatorios from "./pages/Relatorios";
+import Configuracoes from "./pages/Configuracoes";
 
 interface PlaceholderProps {
   title: string;
@@ -37,7 +38,7 @@ function App() {
 
         <Route path="/clientes" element={<Clientes/>} />
         <Route path="/relatorios" element={<Relatorios/>} />
-        <Route path="/configuracoes" element={<Placeholder title="Página de Configurações" />} />
+        <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>
 
     </Routes>

@@ -11,14 +11,8 @@ import Veiculos from "./pages/Veiculos";
 import Vendas from "./pages/Vendas";
 import Clientes from "./pages/Clientes";
 import Relatorios from "./pages/Relatorios";
+import Configuracoes from "./pages/Configuracoes";
 
-interface PlaceholderProps {
-  title: string;
-}
-
-const Placeholder: React.FC<PlaceholderProps> = ({ title }) => {
-  return <h1 className="text-3xl font-bold">{title}</h1>;
-}
 
 function App() {
   return (
@@ -37,7 +31,7 @@ function App() {
 
         <Route path="/clientes" element={<Clientes/>} />
         <Route path="/relatorios" element={<Relatorios/>} />
-        <Route path="/configuracoes" element={<Placeholder title="Página de Configurações" />} />
+        <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>
 
     </Routes>

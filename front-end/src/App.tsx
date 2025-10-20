@@ -12,6 +12,7 @@ import Vendas from "./pages/Vendas";
 import Clientes from "./pages/Clientes";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
+import Admin from "./pages/Admin";
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
 
       <Route path="/" element={<Login />} />
       <Route path="/esqueci-senha" element={<ForgotPassword />} />
+      <Route path="/admin-cadastrar" element={<Admin></Admin>} />
 
       <Route element={<Layout HeaderComponent={DashboardHeader} />}>
         <Route path="/dashboard" element={<Dashboard />} />

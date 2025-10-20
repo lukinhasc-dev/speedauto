@@ -191,9 +191,6 @@ const formatPlate = (value: string) => {
 };
 
 
-
-
-
     return (
         <>
             <div className="mb-6">

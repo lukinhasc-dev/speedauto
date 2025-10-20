@@ -2,16 +2,18 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import veiculosRoutes from './routes/veiculosRoutes';
+import vendasRoutes from './routes/vendasRoutes';
 import { testConnection } from './db';
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: 'http://localhost:5173' })); // <== adiciona aqui
+app.use(cors({ origin: '*' })); // <== adiciona aqui
 app.use(express.json());
 
 app.use('/veiculos', veiculosRoutes);
+app.use('/vendas', vendasRoutes);
 
 (async () => {
   try {

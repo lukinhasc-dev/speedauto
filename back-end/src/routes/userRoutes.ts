@@ -1,0 +1,88 @@
+// backend/src/routes/auth.ts
+import { Router } from 'express';
+import { createClient } from '@supabase/supabase-js';
+import bcrypt from 'bcrypt';
+
+const router = Router();
+
+// Configuração do Supabase
+const supabaseUrl = process.env.SUPABASE_URL || 'https://ndnvvuqqfwxexjvylddq.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbnZ2dXFxZnd4ZXhqdnlsZGRxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTM2MzY1MywiZXhwIjoyMDc0OTM5NjUzfQ.yl7MLF_3GxY-snXtua8G6wBwk6-BWL_TsD5fY30SK1s';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// LOGIN
+router.post('/login', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+      return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+    }
+
+    // Busca usuário pelo email (minúsculo)
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (error || !user) {
+      return res.status(401).json({ error: 'Email ou senha incorretos' });
+    }
+
+    // 🔒 Verifica a senha com bcrypt.compare
+    const isPasswordValid = await bcrypt.compare(senha, user.senha);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Email ou senha incorretos' });
+    }
+
+    // Retorna sucesso
+    return res.json({
+      token: 'fake-jwt-token', // depois a gente implementa JWT de verdade
+      email: user.email,
+    });
+  } catch (err) {
+    console.error('Erro no login:', err);
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// REGISTRO (ADMIN)
+router.post('/register', async (req, res) => {
+  try {
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+      return res.status(400).json({ message: 'Email e senha são obrigatórios' });
+    }
+
+    // Verifica se já existe
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email já cadastrado' });
+    }
+
+    // Criptografa a senha
+    const hashedPassword = await bcrypt.hash(senha, 10);
+
+    // Cria o novo usuário
+    const { error } = await supabase
+      .from('users')
+      .insert([{ email: email.toLowerCase(), senha: hashedPassword }]);
+
+    if (error) throw error;
+
+    return res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
+  } catch (err) {
+    console.error('Erro no registro:', err);
+    return res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+});
+
+export default router;

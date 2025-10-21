@@ -4,6 +4,7 @@ import cors from 'cors';
 import veiculosRoutes from './routes/veiculosRoutes';
 import vendasRoutes from './routes/vendasRoutes';
 import clientesRoutes from './routes/clientesRoutes';
+import userRoutes from './routes/userRoutes';
 import { testConnection } from './db';
 
 dotenv.config();
@@ -16,6 +17,8 @@ app.use(express.json());
 app.use('/veiculos', veiculosRoutes);
 app.use('/vendas', vendasRoutes);
 app.use('/clientes', clientesRoutes);
+app.use('/login', userRoutes);
+
 
 (async () => {
   try {

@@ -27,7 +27,6 @@
 </div>
 
 <style>
-
 #chatbot-container {
   position: fixed;
   bottom: 15px;
@@ -45,7 +44,7 @@
 
 
 #chatbot-header {
-  background: #000452aa;
+  background: #090a4e;
   padding: 10px 12px;
   display: flex;
   justify-content: space-between;
@@ -70,14 +69,12 @@
   transition: all 0.3s ease-in-out;
 }
 
-
 #chatbot-messages {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
   font-size: 14px;
 }
-
 
 #chatbot-input {
   display: flex;
@@ -99,17 +96,34 @@
   margin-left: 8px;
   background: #646cffaa;
   border: none;
-  color: white;
+  color: rgb(255, 255, 255);
   padding: 8px 10px;
   border-radius: 8px;
   cursor: pointer;
 }
 
 
-#chatbot-container.minimized #chatbot-panel {
-  height: 0;
+#chatbot-container.minimized {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #090a4e;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
   overflow: hidden;
-  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+#chatbot-container.minimized #chatbot-header,
+#chatbot-container.minimized #chatbot-panel {
+  display: none;
+}
+
+#chatbot-container.minimized::after {
+  content: "🤖";
+  font-size: 26px;
 }
 </style>
 
@@ -120,7 +134,13 @@ const chatbotMessages = document.getElementById("chatbot-messages");
 const chatbotToggle = document.getElementById("chatbot-toggle");
 const chatbotContainer = document.getElementById("chatbot-container");
 
-// Enviar mensagem
+
+window.addEventListener("DOMContentLoaded", () => {
+  chatbotContainer.classList.add("minimized");
+  chatbotToggle.textContent = "+";
+});
+
+
 chatbotSend.addEventListener("click", sendMessage);
 chatbotText.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
@@ -144,12 +164,23 @@ async function sendMessage() {
   chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
 }
 
-// Minimizar / expandir
-chatbotToggle.addEventListener("click", () => {
-  chatbotContainer.classList.toggle("minimized");
-  chatbotToggle.textContent = chatbotContainer.classList.contains("minimized") ? "+" : "−";
+
+chatbotContainer.addEventListener("click", (e) => {
+  if (chatbotContainer.classList.contains("minimized")) {
+    chatbotContainer.classList.remove("minimized");
+    chatbotToggle.textContent = "−";
+  }
+});
+
+
+chatbotToggle.addEventListener("click", (e) => {
+  e.stopPropagation(); 
+  chatbotContainer.classList.add("minimized");
+  chatbotToggle.textContent = "+";
 });
 </script>
+
+
 
   </body>
 </html>

@@ -31,7 +31,8 @@ router.post('/', async (req, res) => {
     res.status(201).json(venda);
   } catch (err: any) {
     res.status(500).json({ error: err.message || 'Erro ao adicionar venda' });
-  } });
+  }
+});
 
 // Atualizar venda
 router.put('/:id', async (req, res) => {

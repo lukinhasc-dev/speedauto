@@ -34,22 +34,20 @@ const DetailItem: React.FC<DetailItemProps> = ({
 }) => (
   <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
     <div
-      className={`p-2 rounded-full ${
-        highlight
+      className={`p-2 rounded-full ${highlight
           ? "bg-speedauto-primary/10 text-speedauto-primary"
           : "bg-gray-200 text-gray-600"
-      }`}
+        }`}
     >
       {icon}
     </div>
     <div>
       <p className="text-xs font-semibold text-gray-500 uppercase">{label}</p>
       <div
-        className={`text-base mt-0.5 ${
-          highlight
+        className={`text-base mt-0.5 ${highlight
             ? "font-bold text-speedauto-primary"
             : "font-medium text-gray-800"
-        }`}
+          }`}
       >
         {value ?? "—"} {/* Garante que sempre tem algo pra renderizar */}
       </div>
@@ -194,9 +192,8 @@ export default function Clientes() {
 
     return (
       <span
-        className={`px-3 py-1 text-xs font-semibold rounded-full ${
-          styles[status] ?? "bg-gray-100 text-gray-700"
-        }`}
+        className={`px-3 py-1 text-xs font-semibold rounded-full ${styles[status] ?? "bg-gray-100 text-gray-700"
+          }`}
       >
         {status}
       </span>
@@ -544,5 +541,5 @@ export default function Clientes() {
     </>
   );
 }
-                
-                
+
+

@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Assets from '../assets/Logo Completa - SpeedAuto.png';
 
@@ -8,10 +8,10 @@ export default function ForgotPassword() {
     //Usar o onSubmit do formulário
     const handleReset = (e: React.FormEvent) => {
         e.preventDefault(); // Impede o recarregamento da página
-        
+
         //Lógica correta: simula o envio e volta ao Login
         alert("Se uma conta com este e-mail existir, um link de recuperação foi enviado.");
-        navigate("/"); 
+        navigate("/");
     }
 
     return (
@@ -32,17 +32,17 @@ export default function ForgotPassword() {
                             className='border bg-[#EDF2F7] border-gray-200 rounded-lg p-2 font-poppins mb-3 outline-none'
                             required
                         />
-                        
-                        <button 
-                            type="submit" 
+
+                        <button
+                            type="submit"
                             className='bg-speedauto-primary text-white rounded-lg p-2 font-semibold mt-10 hover:bg-speedauto-primary-hover transition-all'
                         >
                             Enviar Link de Recuperação
                         </button>
-                        
-                        <button 
-                            type="button" 
-                            onClick={() => navigate("/")} 
+
+                        <button
+                            type="button"
+                            onClick={() => navigate("/")}
                             className='text-center font-poppins text-1xl text-speedauto-primary mt-5 font-semibold cursor-pointer'
                         >
                             Voltar para o Login

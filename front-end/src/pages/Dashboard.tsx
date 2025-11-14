@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
-    FaChartLine, FaCar, FaUsers, FaArrowUp, FaPlus, FaTimes, FaBell, FaClipboardList, FaArrowRight} from 'react-icons/fa';
+    FaChartLine, FaCar, FaUsers, FaArrowUp, FaPlus, FaTimes, FaBell, FaClipboardList, FaArrowRight
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 interface KpiCardProps {
@@ -95,8 +96,8 @@ const ActivityTable: React.FC = () => {
                     </thead>
                     <tbody>
                         {MOCK_ACTIVITIES.map((item, index) => (
-                            <tr 
-                                key={index} 
+                            <tr
+                                key={index}
                                 className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
                                 onClick={() => navigate(item.actionLink)}
                             >
@@ -104,7 +105,7 @@ const ActivityTable: React.FC = () => {
                                 <td className="py-3 font-medium text-gray-800">{item.desc}</td>
                                 <td className="py-3 text-speedauto-muted">{item.client}</td>
                                 <td className="py-3 text-right">
-                                    <button 
+                                    <button
                                         className="text-speedauto-primary text-xs font-semibold hover:underline flex items-center justify-end gap-1 ml-auto"
                                     >
                                         Ver Detalhes <FaArrowRight size={8} />
@@ -138,8 +139,8 @@ const SalesFunnel: React.FC = () => {
                                 <span className="text-gray-500">{stage.value}</span>
                             </div>
                             <div className="bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                                <div 
-                                    className={`${stage.color} h-2.5 rounded-full transition-all duration-500`} 
+                                <div
+                                    className={`${stage.color} h-2.5 rounded-full transition-all duration-500`}
                                     style={{ width: `${stage.percent}%` }}
                                 ></div>
                             </div>
@@ -154,7 +155,7 @@ const SalesFunnel: React.FC = () => {
 
 const TarefasRapidas: React.FC = () => {
     const [tasks, setTasks] = useState(MOCK_TASKS);
-    
+
     const handleAddTask = () => {
         const newTaskLabel = prompt("Digite a nova tarefa:");
         if (newTaskLabel && newTaskLabel.trim()) {
@@ -166,9 +167,9 @@ const TarefasRapidas: React.FC = () => {
             setTasks(prevTasks => [...prevTasks, newTask]);
         }
     };
-    
+
     const handleToggle = (id: number) => {
-        setTasks(prevTasks => prevTasks.map(task => 
+        setTasks(prevTasks => prevTasks.map(task =>
             task.id === id ? { ...task, completed: !task.completed } : task
         ));
     };
@@ -183,22 +184,22 @@ const TarefasRapidas: React.FC = () => {
                 type="checkbox"
                 id={`task-${task.id}`}
                 checked={task.completed}
-                readOnly 
-                onChange={() => handleToggle(task.id)} 
+                readOnly
+                onChange={() => handleToggle(task.id)}
                 className="h-4 w-4 rounded border-gray-300 text-speedauto-primary focus:ring-speedauto-primary transition-colors cursor-pointer"
             />
             <label
                 htmlFor={`task-${task.id}`}
                 className={`flex-1 text-sm ${task.completed ? 'text-speedauto-muted line-through' : 'text-gray-700'} cursor-pointer`}
                 onClick={(e) => {
-                    e.preventDefault(); 
+                    e.preventDefault();
                     handleToggle(task.id);
                 }}
             >
                 {task.label}
             </label>
 
-            <button 
+            <button
                 onClick={() => handleDelete(task.id)}
                 className="text-gray-400 hover:text-speedauto-red p-1 rounded-full transition-all opacity-0 group-hover:opacity-100"
                 title="Excluir Tarefa"
@@ -212,7 +213,7 @@ const TarefasRapidas: React.FC = () => {
         <div className="bg-white rounded-lg p-6 shadow border border-gray-200 h-full">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold text-gray-800">Tarefas Rápidas</h2>
-                <button 
+                <button
                     onClick={handleAddTask}
                     className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-speedauto-primary bg-speedauto-primary/10 rounded-lg hover:bg-speedauto-primary/20 transition-colors"
                 >
@@ -252,7 +253,7 @@ const BaixoEstoque: React.FC = () => {
                     </div>
                 ))}
             </div>
-            <button 
+            <button
                 onClick={() => navigate('/veiculos')}
                 className="mt-4 w-full text-center text-sm font-semibold text-speedauto-primary bg-speedauto-primary/10 py-2 rounded-lg hover:bg-speedauto-primary/20 transition-colors"
             >
@@ -303,7 +304,7 @@ export default function Dashboard() {
                     <SalesFunnel />
                 </div>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
                 <div className="lg:col-span-2">
                     <TarefasRapidas />

@@ -4,15 +4,15 @@ import { supabase } from '../db';
 export type StatusVeiculo = 'Disponível' | 'Vendido' | 'Em manutenção';
 
 export interface Veiculos {
-    id: number;
-    marca: string;
-    modelo: string;
-    ano:number;
-    cor: string;
-    combustivel: string;
-    placa: string;
-    valor_venda: number;
-    status: StatusVeiculo;
+  id: number;
+  marca: string;
+  modelo: string;
+  ano: number;
+  cor: string;
+  combustivel: string;
+  placa: string;
+  valor_venda: number;
+  status: StatusVeiculo;
 }
 
 

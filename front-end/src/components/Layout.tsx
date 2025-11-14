@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
 interface LayoutProps {
-    HeaderComponent: React.FC;
+  HeaderComponent: React.FC;
 }
 
 export default function Layout({ HeaderComponent }: LayoutProps) {
@@ -12,9 +12,9 @@ export default function Layout({ HeaderComponent }: LayoutProps) {
       <div className="row-span-2">
         <Sidebar />
       </div>
-      
+
       <HeaderComponent />
-      
+
       <main className="overflow-y-auto p-8 bg-gray-100">
         <Outlet />
       </main>

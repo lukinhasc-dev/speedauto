@@ -49,12 +49,12 @@ export default function Veiculos() {
 
         fetchVehicles();
     }, []);
-    
+
     const availableMarcas = useMemo(() => {
         const marcas = vehicles.map(v => v.marca);
         return [...new Set(marcas)].sort();
     }, [vehicles]);
-    
+
     const filteredVehicles = useMemo(() => {
         let currentVehicles = vehicles;
         const lowerCaseSearch = searchTerm.toLowerCase();
@@ -89,62 +89,62 @@ export default function Veiculos() {
     };
 
     const handleSaveVehicle = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    try {
-        const formData = new FormData(e.currentTarget);
-        const formDataObj = Object.fromEntries(formData.entries());
+        try {
+            const formData = new FormData(e.currentTarget);
+            const formDataObj = Object.fromEntries(formData.entries());
 
-        // Validação básica dos campos obrigatórios
-        const requiredFields = ['marca', 'modelo', 'placa', 'ano', 'valor'];
-        for (const field of requiredFields) {
-            if (!formDataObj[field] || String(formDataObj[field]).trim() === '') {
-                alert(`O campo "${field}" é obrigatório.`);
+            // Validação básica dos campos obrigatórios
+            const requiredFields = ['marca', 'modelo', 'placa', 'ano', 'valor'];
+            for (const field of requiredFields) {
+                if (!formDataObj[field] || String(formDataObj[field]).trim() === '') {
+                    alert(`O campo "${field}" é obrigatório.`);
+                    return;
+                }
+            }
+
+            // Conversão dos campos numéricos corretamente
+            const ano = parseInt(formDataObj.ano as string);
+            const valor_venda = parseFloat(formDataObj.valor as string);
+
+            if (isNaN(ano)) {
+                alert('Ano inválido.');
                 return;
             }
+            if (isNaN(valor_venda)) {
+                alert('Valor de venda inválido.');
+                return;
+            }
+
+            const vehicleData: Omit<Veiculos, 'id'> = {
+                marca: String(formDataObj.marca),
+                modelo: String(formDataObj.modelo),
+                cor: String(formDataObj.cor || ''),
+                combustivel: String(formDataObj.combustivel || ''),
+                placa: String(formDataObj.placa),
+                status: String(formDataObj.status) as Veiculos['status'],
+                valor_venda,
+                ano,
+            };
+
+            let savedVehicle: Veiculos;
+
+            if (modalMode === 'add') {
+                savedVehicle = await veiculosApi.addVeiculo(vehicleData);
+                setVehicles(prev => [...prev, savedVehicle]);
+            } else if (modalMode === 'edit' && selectedVehicle) {
+                savedVehicle = await veiculosApi.updateVeiculo(selectedVehicle.id, vehicleData);
+                setVehicles(prev => prev.map(v => v.id === selectedVehicle.id ? savedVehicle : v));
+            }
+
+            closeModal();
+
+        } catch (error) {
+            console.error('Erro ao salvar veículo:', error);
+            alert('Ocorreu um erro ao salvar o veículo. Verifique o console para mais detalhes.');
         }
-
-        // Conversão dos campos numéricos corretamente
-        const ano = parseInt(formDataObj.ano as string);
-        const valor_venda = parseFloat(formDataObj.valor as string);
-
-        if (isNaN(ano)) {
-            alert('Ano inválido.');
-            return;
-        }
-        if (isNaN(valor_venda)) {
-            alert('Valor de venda inválido.');
-            return;
-        }
-
-        const vehicleData: Omit<Veiculos, 'id'> = {
-            marca: String(formDataObj.marca),
-            modelo: String(formDataObj.modelo),
-            cor: String(formDataObj.cor || ''),
-            combustivel: String(formDataObj.combustivel || ''),
-            placa: String(formDataObj.placa),
-            status: String(formDataObj.status) as Veiculos['status'],
-            valor_venda,
-            ano,
-        };
-
-        let savedVehicle: Veiculos;
-
-        if (modalMode === 'add') {
-            savedVehicle = await veiculosApi.addVeiculo(vehicleData);
-            setVehicles(prev => [...prev, savedVehicle]);
-        } else if (modalMode === 'edit' && selectedVehicle) {
-            savedVehicle = await veiculosApi.updateVeiculo(selectedVehicle.id, vehicleData);
-            setVehicles(prev => prev.map(v => v.id === selectedVehicle.id ? savedVehicle : v));
-        }
-
-        closeModal();
-
-    } catch (error) {
-        console.error('Erro ao salvar veículo:', error);
-        alert('Ocorreu um erro ao salvar o veículo. Verifique o console para mais detalhes.');
-    }
-};
+    };
 
     const handleDeleteVehicle = async () => {
         if (!selectedVehicle) return;
@@ -180,15 +180,15 @@ export default function Veiculos() {
     //Função para Placa do Veículo
     const [placa, setPlaca] = useState<string>('');
 
-const formatPlate = (value: string) => {
-  // remove tudo que não seja letra ou número
-  let v = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-  // coloca hífen depois das 3 primeiras letras
-  if (v.length > 3) {
-    v = v.slice(0, 3) + '-' + v.slice(3, 7); // limita a 7 caracteres (ex: XXX-9999)
-  }
-  return v;
-};
+    const formatPlate = (value: string) => {
+        // remove tudo que não seja letra ou número
+        let v = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        // coloca hífen depois das 3 primeiras letras
+        if (v.length > 3) {
+            v = v.slice(0, 3) + '-' + v.slice(3, 7); // limita a 7 caracteres (ex: XXX-9999)
+        }
+        return v;
+    };
 
 
     return (
@@ -210,9 +210,9 @@ const formatPlate = (value: string) => {
                         />
                         <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" />
                     </div>
-                    
+
                     {/* FILTRO DE STATUS */}
-                    <select 
+                    <select
                         className="border border-gray-300 rounded-lg p-2 text-sm bg-white shadow-sm text-gray-700 focus:ring-1 focus:ring-speedauto-primary focus:border-speedauto-primary"
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
@@ -222,8 +222,8 @@ const formatPlate = (value: string) => {
                         <option value="Vendido">Vendido</option>
                         <option value="Em Manutenção">Em Manutenção</option>
                     </select>
-                    
-                    <select 
+
+                    <select
                         className="border border-gray-300 rounded-lg p-2 text-sm bg-white shadow-sm text-gray-700 focus:ring-1 focus:ring-speedauto-primary focus:border-speedauto-primary"
                         value={filterMarca}
                         onChange={(e) => setFilterMarca(e.target.value)}
@@ -319,7 +319,7 @@ const formatPlate = (value: string) => {
 
                         <div className="p-6 space-y-4">
                             <h3 className="text-xl font-bold text-gray-700 border-b pb-2 mb-4">{selectedVehicle.marca} {selectedVehicle.modelo}</h3>
-                            
+
                             <div className='grid grid-cols-2 gap-3'>
                                 <div className="p-4 bg-speedauto-primary/10 rounded-lg border border-speedauto-primary/30 col-span-2">
                                     <p className="text-sm font-medium text-speedauto-primary">VALOR DE VENDA</p>
@@ -327,7 +327,7 @@ const formatPlate = (value: string) => {
                                         {formatCurrency(selectedVehicle.valor_venda)}
                                     </p>
                                 </div>
-                                
+
                                 <div className="p-4 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-between col-span-2">
                                     <div>
                                         <p className="text-sm font-medium text-gray-600">STATUS ATUAL</p>
@@ -338,15 +338,15 @@ const formatPlate = (value: string) => {
 
                                 <DetailItem label="Placa" value={selectedVehicle.placa} icon={<FaCarSide />} />
                                 <DetailItem label="Ano/Modelo" value={selectedVehicle.ano} icon={<FaCalendarAlt />} />
-                                
+
                                 <DetailItem label="Cor" value={selectedVehicle.cor || 'Não informado'} icon={<FaPalette />} />
                                 <DetailItem label="Combustível" value={selectedVehicle.combustivel || 'Não informado'} icon={<FaGasPump />} />
                             </div>
                         </div>
 
                         <div className="p-6 bg-gray-50 border-t rounded-b-lg flex justify-end gap-4">
-                            <button 
-                                onClick={() => openModal('edit', selectedVehicle)} 
+                            <button
+                                onClick={() => openModal('edit', selectedVehicle)}
                                 className="bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-100 transition-all"
                             >
                                 <FaPencilAlt className='inline-block mr-1' /> Editar Dados
@@ -361,7 +361,7 @@ const formatPlate = (value: string) => {
 
             {(modalMode === 'add' || modalMode === 'edit') && (
                 <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4 transition-opacity duration-300">
-                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl animate-fade-in-up"> 
+                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl animate-fade-in-up">
 
                         <div className="flex justify-between items-center p-6 border-b">
                             <h2 className="text-2xl font-bold text-gray-800">{modalMode === 'add' ? 'Cadastrar Novo Veículo' : 'Editar Veículo'}</h2>

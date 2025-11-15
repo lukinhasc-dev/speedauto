@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import Chatbot from './Chatbot';
 
 interface LayoutProps {
   HeaderComponent: React.FC;
@@ -18,6 +19,9 @@ export default function Layout({ HeaderComponent }: LayoutProps) {
       <main className="overflow-y-auto p-8 bg-gray-100">
         <Outlet />
       </main>
+
+      <Chatbot />
     </div>
+
   );
 }

@@ -35,8 +35,8 @@ const DetailItem: React.FC<DetailItemProps> = ({
   <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
     <div
       className={`p-2 rounded-full ${highlight
-          ? "bg-speedauto-primary/10 text-speedauto-primary"
-          : "bg-gray-200 text-gray-600"
+        ? "bg-speedauto-primary/10 text-speedauto-primary"
+        : "bg-gray-200 text-gray-600"
         }`}
     >
       {icon}
@@ -45,8 +45,8 @@ const DetailItem: React.FC<DetailItemProps> = ({
       <p className="text-xs font-semibold text-gray-500 uppercase">{label}</p>
       <div
         className={`text-base mt-0.5 ${highlight
-            ? "font-bold text-speedauto-primary"
-            : "font-medium text-gray-800"
+          ? "font-bold text-speedauto-primary"
+          : "font-medium text-gray-800"
           }`}
       >
         {value ?? "—"} {/* Garante que sempre tem algo pra renderizar */}

@@ -6,8 +6,9 @@ import vendasRoutes from './routes/vendasRoutes';
 import clientesRoutes from './routes/clientesRoutes';
 import userRoutes from './routes/userRoutes';
 import { testConnection } from './db';
+import chatbotRoutes from './routes/chatbotRoutes';
 
-dotenv.config();
+dotenv.config({ path: '../.env' });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -18,7 +19,7 @@ app.use('/veiculos', veiculosRoutes);
 app.use('/vendas', vendasRoutes);
 app.use('/clientes', clientesRoutes);
 app.use('/login', userRoutes);
-
+app.use('/api/chatbot', chatbotRoutes);
 
 (async () => {
   try {

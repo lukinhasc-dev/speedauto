@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.75.1",
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.12.2",

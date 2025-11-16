@@ -1,6 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import { FaDownload, FaChartLine, FaCarSide, FaUsers, FaDollarSign, FaCalendarAlt, FaCar, FaUserTie, FaArrowUp, FaArrowDown, FaTimes, FaReceipt } from 'react-icons/fa'; // Importa FaTimes
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
+import React, { useState, useMemo, useEffect } from 'react';
+import { FaDownload, FaChartLine, FaCarSide, FaUsers, FaDollarSign, FaCalendarAlt, FaCar, FaUserTie, FaArrowUp, FaArrowDown, FaTimes, FaReceipt } from 'react-icons/fa';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { Veiculos } from '../types/Veiculo';
+import type { Venda } from "../types/Venda";
+import * as veiculosApi from '../api/veiculosApi';
+import * as vendasApi from "../api/vendasApi";
 
 // --- Interfaces ---
 interface ReportKpiProps {
@@ -17,42 +21,14 @@ interface TopItem {
     count: number;
 }
 
-const MOCK_DATA = {
-    revenue: 350800,
-    vehiclesSold: 8,
-    newClients: 22,
-    averageTicket: 43850,
+/* ----------------- Charts helpers ----------------- */
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: Array<{ payload: { Faturamento: number; Quantidade: number } }>;
+    label?: string | number;
+}
 
-    monthlyRevenue: [
-        { name: 'Jan', Faturamento: 150000, Quantidade: 5 },
-        { name: 'Fev', Faturamento: 180000, Quantidade: 8 },
-        { name: 'Mar', Faturamento: 220000, Quantidade: 10 },
-        { name: 'Abr', Faturamento: 190000, Quantidade: 7 },
-        { name: 'Mai', Faturamento: 250000, Quantidade: 12 },
-        { name: 'Jun', Faturamento: 300000, Quantidade: 15 },
-    ],
-
-    brandSales: [
-        { name: 'Fiat', Faturamento: 300000, Quantidade: 5, color: '#2563EB' },
-        { name: 'BMW', Faturamento: 500000, Quantidade: 2, color: '#F59E0B' },
-        { name: 'Ford', Faturamento: 250000, Quantidade: 3, color: '#16A34A' },
-        { name: 'Outros', Faturamento: 100000, Quantidade: 1, color: '#DC2626' },
-    ],
-
-    topVehicles: [
-        { name: 'VW Gol', value: 'R$ 80.000,00', count: 3 },
-        { name: 'Fiat Uno', value: 'R$ 35.000,00', count: 2 },
-        { name: 'BMW X3', value: 'R$ 350.000,00', count: 1 },
-    ],
-
-    topSellers: [
-        { name: 'João S.', value: 'R$ 200.000,00', count: 4 },
-        { name: 'Maria F.', value: 'R$ 150.800,00', count: 4 },
-    ]
-};
-
-
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         return (
@@ -66,7 +42,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-const RevenueChart: React.FC<{ data: any[], dataKey: string }> = ({ data, dataKey }) => {
+interface RevenueChartData {
+    name: string;
+    Faturamento: number;
+    Quantidade: number;
+}
+
+const RevenueChart: React.FC<{ data: RevenueChartData[], dataKey: keyof RevenueChartData }> = ({ data, dataKey }) => {
     const isCurrency = dataKey === 'Faturamento';
     const color = isCurrency ? '#2563EB' : '#16A34A';
 
@@ -88,7 +70,7 @@ const RevenueChart: React.FC<{ data: any[], dataKey: string }> = ({ data, dataKe
                         tickLine={false}
                         style={{ fontSize: '12px' }}
                     />
-                    <Tooltip content={<CustomTooltip dataKey={dataKey} />} />
+                    <Tooltip content={<CustomTooltip />} />
                     <Area type="monotone" dataKey={dataKey} stroke={color} fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={3} activeDot={{ r: 6 }} />
                 </AreaChart>
             </ResponsiveContainer>
@@ -96,38 +78,9 @@ const RevenueChart: React.FC<{ data: any[], dataKey: string }> = ({ data, dataKe
     );
 }
 
-const BrandPieChart: React.FC<{ data: any[], dataKey: 'Faturamento' | 'Quantidade' }> = ({ data, dataKey }) => {
-    const formatter = (value: number) => {
-        return dataKey === 'Faturamento' ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : value;
-    };
-
-    return (
-        <div className="flex-grow flex justify-center items-center">
-            <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                    <Pie
-                        data={data}
-                        dataKey={dataKey}
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        fill="#8884d8"
-                        labelLine={false}
-                    >
-                        {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Pie>
-                    <Tooltip formatter={formatter} />
-                    <Legend layout="horizontal" align="center" verticalAlign="bottom" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                </PieChart>
-            </ResponsiveContainer>
-        </div>
-    );
-}
 
 
+/* ----------------- UI components ----------------- */
 const ReportKpi: React.FC<ReportKpiProps> = ({ title, value, icon, colorClass, trend }) => {
     const isPositive = trend && trend.includes('+');
     const trendClass = isPositive ? 'text-speedauto-green' : 'text-speedauto-red';
@@ -176,36 +129,173 @@ const TopTable: React.FC<{ title: string, data: TopItem[], isCurrency?: boolean,
     </div>
 );
 
-
+/* ----------------- Main component ----------------- */
 export default function Relatorios() {
-    const [dataInicio, setDataInicio] = useState<string>('2025-01-01');
-    const [dataFim, setDataFim] = useState<string>('2025-12-31');
+    const [dataInicio, setDataInicio] = useState<string>(() => {
+        const start = new Date();
+        start.setMonth(start.getMonth() - 11); // default 12 months back
+        const iso = start.toISOString().split('T')[0];
+        return iso;
+    });
+    const [dataFim, setDataFim] = useState<string>(() => new Date().toISOString().split('T')[0]);
     const [reportType, setReportType] = useState<'Faturamento' | 'Quantidade'>('Faturamento');
-    const [pieChartMetric, setPieChartMetric] = useState<'Faturamento' | 'Quantidade'>('Faturamento');
+    const [veiculos, setVeiculos] = useState<Veiculos[]>([]);
+    const [vendas, setVendas] = useState<Venda[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    const formatCurrency = (value: number) => {
-        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    };
+    useEffect(() => {
+        let mounted = true;
+        const fetchAll = async () => {
+            try {
+                setLoading(true);
+                const [veicRes, vendasRes] = await Promise.all([
+                    veiculosApi.getVeiculos(),
+                    vendasApi.getVendas()
+                ]);
+                if (!mounted) return;
+                setVeiculos(veicRes);
+                setVendas(vendasRes);
+            } catch (err) {
+                console.error('Erro ao buscar dados:', err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        fetchAll();
+        return () => { mounted = false; };
+    }, []);
 
+    const formatCurrency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    // Filtra vendas pelo período selecionado
+    const vendasNoPeriodo = useMemo(() => {
+        if (!vendas || vendas.length === 0) return [];
+        const start = new Date(dataInicio + 'T00:00:00');
+        const end = new Date(dataFim + 'T23:59:59');
+        return vendas.filter(v => {
+            const d = new Date(v.data);
+            return d >= start && d <= end;
+        });
+    }, [vendas, dataInicio, dataFim]);
+
+    // Agrupa e calcula métricas reais a partir do backend
     const reportData = useMemo(() => {
-        const factor = dataInicio === '2025-01-01' ? 1.0 : 0.8;
+        // KPIs
+        const totalFaturado = vendasNoPeriodo.reduce((acc, v) => acc + Number(v.valor || 0), 0);
+        const vehiclesSold = vendasNoPeriodo.length;
+        const clientesUnicos = new Set(vendasNoPeriodo.map(v => v.cliente)).size;
+        const ticketMedio = vehiclesSold > 0 ? totalFaturado / vehiclesSold : 0;
+
+        // monthlyRevenue agrupando por mês (ordenado)
+        const monthlyMap: Record<string, { name: string; Faturamento: number; Quantidade: number; ts: number }> = {};
+        vendasNoPeriodo.forEach(v => {
+            const d = new Date(v.data);
+            const monthLabel = d.toLocaleString('pt-BR', { month: 'short', year: 'numeric' }); // Ex: "jan 2025"
+            const key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+            if (!monthlyMap[key]) monthlyMap[key] = { name: monthLabel, Faturamento: 0, Quantidade: 0, ts: +new Date(d.getFullYear(), d.getMonth(), 1) };
+            monthlyMap[key].Faturamento += v.valor;
+            monthlyMap[key].Quantidade += 1;
+        });
+        const monthlyRevenue = Object.keys(monthlyMap)
+            .sort()
+            .map(key => {
+                const { name, Faturamento, Quantidade } = monthlyMap[key];
+                return { name, Faturamento, Quantidade };
+            });
+
+        // brandSales: usar veiculos para mapear marca via modelo (venda.veiculo é string modelo)
+        const brandMap: Record<string, { name: string; Faturamento: number; Quantidade: number; color?: string }> = {};
+        veiculos.forEach(v => {
+            if (!brandMap[v.marca]) brandMap[v.marca] = { name: v.marca, Faturamento: 0, Quantidade: 0, color: undefined };
+        });
+        // fallback 'Outros'
+        brandMap['Outros'] = brandMap['Outros'] || { name: 'Outros', Faturamento: 0, Quantidade: 0, color: '#9CA3AF' };
+
+        vendasNoPeriodo.forEach(v => {
+            // tenta achar veículo pelo modelo (modelo pode não bater exatamente; tenta indexOf, depois exato)
+            const veiculoEncontrado = veiculos.find(vc => `${vc.marca} ${vc.modelo}`.toLowerCase() === v.veiculo.toLowerCase())
+                || veiculos.find(vc => vc.modelo.toLowerCase() === v.veiculo.toLowerCase())
+                || veiculos.find(vc => v.veiculo.toLowerCase().includes(vc.modelo.toLowerCase()))
+                || null;
+            if (veiculoEncontrado) {
+                const marca = veiculoEncontrado.marca;
+                if (!brandMap[marca]) brandMap[marca] = { name: marca, Faturamento: 0, Quantidade: 0, color: undefined };
+                brandMap[marca].Faturamento += v.valor;
+                brandMap[marca].Quantidade += 1;
+            } else {
+                brandMap['Outros'].Faturamento += v.valor;
+                brandMap['Outros'].Quantidade += 1;
+            }
+        });
+        const brandSales = Object.values(brandMap).sort((a, b) => b.Faturamento - a.Faturamento);
+
+        // topVehicles por nome (v.veiculo)
+        const topVehiclesMap: Record<string, { name: string; count: number; value: number }> = {};
+        vendasNoPeriodo.forEach(v => {
+            if (!topVehiclesMap[v.veiculo]) topVehiclesMap[v.veiculo] = { name: v.veiculo, count: 0, value: 0 };
+            topVehiclesMap[v.veiculo].count += 1;
+            topVehiclesMap[v.veiculo].value += v.valor;
+        });
+        const topVehicles = Object.values(topVehiclesMap).sort((a, b) => b.count - a.count);
+
+        // topCustomers (substitui top sellers já que não há vendedores)
+        const topCustomersMap: Record<string, { name: string; count: number; value: number }> = {};
+        vendasNoPeriodo.forEach(v => {
+            if (!topCustomersMap[v.cliente]) topCustomersMap[v.cliente] = { name: v.cliente, count: 0, value: 0 };
+            topCustomersMap[v.cliente].count += 1;
+            topCustomersMap[v.cliente].value += v.valor;
+        });
+        const topCustomers = Object.values(topCustomersMap).sort((a, b) => b.value - a.value);
+
+        // --- TAXA DE VENDAS ---
+        // total de vendas concluídas no período
+        const vendasConcluidasPeriodo = vendasNoPeriodo.filter(v => v.status === "Concluída").length;
+
+        // total concluído no ano inteiro (ou seja, base geral)
+        const totalConcluidasAno = vendas.filter(v => v.status === "Concluída").length;
+
+        // taxa (%) -> representa qual porcentagem das vendas concluídas no ano
+        // foram feitas dentro do período selecionado
+        const taxaVendas = totalConcluidasAno > 0
+            ? (vendasConcluidasPeriodo / totalConcluidasAno) * 100
+            : 0;
+
+
+        // --- TENDÊNCIA (comparação com período anterior) ---
+        const inicio = new Date(dataInicio + "T00:00:00");
+        const fim = new Date(dataFim + "T23:59:59");
+        const diff = fim.getTime() - inicio.getTime();
+
+        const inicioAnterior = new Date(inicio.getTime() - diff);
+        const fimAnterior = new Date(inicio.getTime() - 1);
+
+        const vendasPeriodoAnterior = vendas.filter(v => {
+            const d = new Date(v.data);
+            return d >= inicioAnterior && d <= fimAnterior && v.status === "Concluída";
+        });
+
+        const taxaAnterior = totalConcluidasAno > 0
+            ? (vendasPeriodoAnterior.length / totalConcluidasAno) * 100
+            : 0;
+
+        const diffTaxaVendas = taxaAnterior === 0
+            ? "+0%"
+            : (((taxaVendas - taxaAnterior) / taxaAnterior) * 100).toFixed(1) + "%";
 
         return {
-            revenue: MOCK_DATA.revenue * factor,
-            vehiclesSold: Math.round(MOCK_DATA.vehiclesSold * factor),
-            newClients: Math.round(MOCK_DATA.newClients * factor),
-            averageTicket: MOCK_DATA.averageTicket,
+            revenue: totalFaturado,
+            vehiclesSold,
+            newClients: clientesUnicos,
+            averageTicket: ticketMedio,
+            monthlyRevenue,
+            brandSales,
+            topVehicles,
+            topSellers: topCustomers,
 
-            monthlyRevenue: MOCK_DATA.monthlyRevenue,
-            brandSales: MOCK_DATA.brandSales,
-
-            topVehicles: MOCK_DATA.topVehicles.map(item => ({
-                ...item,
-                count: Math.max(1, Math.round(item.count * factor)),
-            })),
-            topSellers: MOCK_DATA.topSellers,
+            taxaVendas,
+            taxaVendasTrend: diffTaxaVendas
         };
-    }, [dataInicio, dataFim]);
+    }, [vendasNoPeriodo, veiculos, dataInicio, dataFim]);
 
     const chartDataKey = reportType === 'Faturamento' ? 'Faturamento' : 'Quantidade';
     const chartTitle = reportType === 'Faturamento' ? 'Evolução de Faturamento' : 'Evolução de Volume de Vendas';
@@ -227,10 +317,62 @@ export default function Relatorios() {
     };
 
     const clearDates = () => {
-        setDataInicio('2025-01-01');
-        setDataFim('2025-12-31');
+        setDataInicio(new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0]);
+        setDataFim(new Date().toISOString().split('T')[0]);
     };
 
+    // Export CSV das vendas do período
+    const exportCsv = () => {
+        const data = vendasNoPeriodo;
+        if (!data || data.length === 0) {
+            alert('Nenhuma venda encontrada no período selecionado.');
+            return;
+        }
+
+        // Cabeçalho (usar ponto e vírgula pra Excel pt-BR)
+        const headers = [
+            'id', 'veiculo', 'cliente', 'data', 'valor', 'status', 'observacoes', 'marca_veiculo', 'modelo_veiculo', 'placa_veiculo'
+        ];
+        const rows = data.map(v => {
+            const ve = veiculos.find(vc => `${vc.marca} ${vc.modelo}`.toLowerCase() === v.veiculo.toLowerCase())
+                || veiculos.find(vc => vc.modelo.toLowerCase() === v.veiculo.toLowerCase())
+                || null;
+            const marca = ve ? ve.marca : '';
+            const modelo = ve ? ve.modelo : '';
+            const placa = ve ? ve.placa : '';
+            // Formata valor com vírgula decimal (opcional), mas mantemos ponto para compatibilidade
+            const valor = Number(v.valor || 0).toFixed(2);
+            return [
+                v.id,
+                `"${v.veiculo.replace(/"/g, '""')}"`,
+                `"${v.cliente.replace(/"/g, '""')}"`,
+                v.data,
+                valor,
+                v.status,
+                `"${(v.observacoes || '').replace(/"/g, '""')}"`,
+                `"${marca}"`,
+                `"${modelo}"`,
+                `"${placa}"`
+            ].join(';');
+        });
+
+        const csvContent = [headers.join(';'), ...rows].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const filename = `vendas_${dataInicio}_${dataFim}.csv`;
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    if (loading) {
+        return <p>Carregando relatório...</p>;
+    }
 
     return (
         <>
@@ -239,11 +381,13 @@ export default function Relatorios() {
                     <h1 className="text-3xl font-bold text-gray-800">Relatórios e Análises</h1>
                     <p className="text-gray-500 mt-1">Transforme dados em inteligência de negócio.</p>
                 </div>
-                <button
-                    className="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-300 transition-all shadow-sm"
-                    onClick={() => alert('Simulando exportação do relatório...')}>
-                    <FaDownload /> Exportar Relatório
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        className="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-gray-300 transition-all shadow-sm"
+                        onClick={exportCsv}>
+                        <FaDownload /> Exportar Vendas (CSV)
+                    </button>
+                </div>
             </div>
 
             <div className="bg-white p-4 rounded-lg shadow border border-gray-200 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -278,7 +422,7 @@ export default function Relatorios() {
                         />
                     </div>
 
-                    {(dataInicio !== '2025-01-01' || dataFim !== '2025-12-31') && (
+                    {(dataInicio !== '' || dataFim !== '') && (
                         <button
                             onClick={clearDates}
                             className="text-speedauto-red hover:text-red-700 transition-colors p-1"
@@ -329,16 +473,15 @@ export default function Relatorios() {
                     colorClass="text-blue-500"
                 />
                 <ReportKpi
-                    title="Taxa de Conversão"
-                    value="25%"
-                    trend="-2%"
+                    title="Taxa de Vendas"
+                    value={reportData.taxaVendas.toFixed(1) + "%"}
+                    trend={reportData.taxaVendasTrend}
                     icon={<FaChartLine />}
                     colorClass="text-purple-500"
                 />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
                 <div className="lg:col-span-2">
                     <div className="bg-white rounded-lg p-6 shadow border border-gray-200 h-96 flex flex-col">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4">{chartTitle}</h3>
@@ -347,44 +490,11 @@ export default function Relatorios() {
                 </div>
 
                 <TopTable
-                    title="Top Vendedores"
-                    data={reportData.topSellers.map(s => ({ ...s, value: s.count.toString() }))}
+                    title="Top Clientes"
+                    data={reportData.topSellers.map(s => ({ name: s.name, value: formatCurrency(s.value), count: s.count }))}
                     isCurrency={false}
                     icon={<FaUserTie />}
                 />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-
-                <TopTable
-                    title="Veículos Mais Vendidos"
-                    data={reportData.topVehicles}
-                    isCurrency={false}
-                    icon={<FaCar />}
-                />
-
-                <div className="lg:col-span-2">
-                    <div className="bg-white rounded-lg p-6 shadow border border-gray-200 h-96 flex flex-col">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-semibold text-gray-800">Vendas por Marca</h3>
-                            <div className="flex bg-gray-100 rounded-lg p-1 text-sm border border-gray-200">
-                                <button
-                                    onClick={() => setPieChartMetric('Faturamento')}
-                                    className={`py-0.5 px-2 font-medium rounded-lg transition-all ${pieChartMetric === 'Faturamento' ? 'bg-white shadow text-speedauto-primary' : 'text-gray-600 hover:text-gray-800'}`}
-                                >
-                                    Valor
-                                </button>
-                                <button
-                                    onClick={() => setPieChartMetric('Quantidade')}
-                                    className={`py-0.5 px-2 font-medium rounded-lg transition-all ${pieChartMetric === 'Quantidade' ? 'bg-white shadow text-speedauto-green' : 'text-gray-600 hover:text-gray-800'}`}
-                                >
-                                    Qtd.
-                                </button>
-                            </div>
-                        </div>
-                        <BrandPieChart data={reportData.brandSales} dataKey={pieChartMetric} />
-                    </div>
-                </div>
             </div>
         </>
     );

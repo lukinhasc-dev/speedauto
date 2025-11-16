@@ -3,13 +3,13 @@ import { supabase } from '../db';
 export type StatusVendas = 'Em Andamento' | 'Concluída' | 'Cancelada';
 
 export interface Vendas {
-    id: number;
-    veiculo: string;
-    cliente: string;
-    data: string;
-    valor: number;
-    status: StatusVendas;
-    observacoes: string;
+  id: number;
+  veiculo: string;
+  cliente: string;
+  data: string;
+  valor: number;
+  status: StatusVendas;
+  observacoes: string;
 }
 
 export async function getVendas(): Promise<Vendas[]> {

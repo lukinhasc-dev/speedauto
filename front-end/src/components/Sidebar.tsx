@@ -1,20 +1,20 @@
 // src/components/Sidebar.tsx
 import { NavLink } from 'react-router-dom';
-import { 
+import {
   FaTachometerAlt, FaCar, FaDollarSign, FaUsers, FaChartPie, FaCog, FaCarSide, FaSignOutAlt,
 } from 'react-icons/fa';
 
 export default function Sidebar() {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-3 py-3 px-3 rounded-lg text-gray-400 font-medium transition-all
-     ${isActive 
-       ? 'bg-white/10 text-white' 
-       : 'hover:bg-white/5 hover:text-white'
-     }`;
+     ${isActive
+      ? 'bg-white/10 text-white'
+      : 'hover:bg-white/5 hover:text-white'
+    }`;
 
   return (
     <aside className="bg-speedauto-sidebar text-gray-400 p-6 flex flex-col h-screen">
-      
+
       <div className="flex items-center gap-2 text-white text-2xl font-bold mb-12">
         <FaCarSide className="text-speedauto-red" />
         <span>SPEEDAUTO</span>

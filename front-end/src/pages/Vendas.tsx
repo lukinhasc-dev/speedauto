@@ -34,9 +34,8 @@ const DetailItem: React.FC<DetailItemProps> = ({
   <div className={`grid gap-1 ${fullWidth ? "grid-cols-1" : "grid-cols-2"}`}>
     <p className="text-sm font-medium text-gray-500">{label}</p>
     <div
-      className={`text-base ${
-        highlight ? "font-bold text-speedauto-primary" : "text-gray-800"
-      }`}
+      className={`text-base ${highlight ? "font-bold text-speedauto-primary" : "text-gray-800"
+        }`}
     >
       {value}
     </div>
@@ -56,17 +55,17 @@ export default function Vendas() {
   const [dataFim, setDataFim] = useState<string>("");
 
   useEffect(() => {
-        const fetchVendas = async () => {
-            try {
-                const allVenda: Venda[] = await vendasApi.getVendas();
-                setSales(allVenda);
-            } catch (err) {
-                console.error('Erro ao buscar vendas:', err);
-            }
-        };
+    const fetchVendas = async () => {
+      try {
+        const allVenda: Venda[] = await vendasApi.getVendas();
+        setSales(allVenda);
+      } catch (err) {
+        console.error('Erro ao buscar vendas:', err);
+      }
+    };
 
-        fetchVendas();
-    }, []);
+    fetchVendas();
+  }, []);
 
   const filteredSales = useMemo(() => {
     let currentSales = sales;
@@ -111,57 +110,57 @@ export default function Vendas() {
     setSelectedSale(null);
   };
 
-//Salvar Venda (Adicionar ou Editar)
- const handleSaveSale = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  //Salvar Venda (Adicionar ou Editar)
+  const handleSaveSale = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  const formData = new FormData(e.currentTarget);
-  const saleData = Object.fromEntries(formData.entries()) as Omit<Venda, 'id'> & { valor: string };
+    const formData = new FormData(e.currentTarget);
+    const saleData = Object.fromEntries(formData.entries()) as Omit<Venda, 'id'> & { valor: string };
 
-  try {
-    let savedSale: Venda;
+    try {
+      let savedSale: Venda;
 
-    // Cast para string garante que podemos usar replace
-    const valorRaw = saleData.valor as string;
-    const valorNumber = parseFloat(
-      valorRaw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '')
-    );
+      // Cast para string garante que podemos usar replace
+      const valorRaw = saleData.valor as string;
+      const valorNumber = parseFloat(
+        valorRaw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '')
+      );
 
-    if (modalMode === 'add') {
-      savedSale = await vendasApi.addVenda({ ...saleData, valor: valorNumber });
-      setSales([...sales, savedSale]);
-    } else if (modalMode === 'edit' && selectedSale) {
-      savedSale = await vendasApi.updateVenda(selectedSale.id, { ...saleData, valor: valorNumber });
-      setSales(sales.map((s) => (s.id === selectedSale.id ? savedSale : s)));
+      if (modalMode === 'add') {
+        savedSale = await vendasApi.addVenda({ ...saleData, valor: valorNumber });
+        setSales([...sales, savedSale]);
+      } else if (modalMode === 'edit' && selectedSale) {
+        savedSale = await vendasApi.updateVenda(selectedSale.id, { ...saleData, valor: valorNumber });
+        setSales(sales.map((s) => (s.id === selectedSale.id ? savedSale : s)));
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error('Erro ao salvar venda:', err);
+      alert('Ocorreu um erro ao salvar a venda. Verifique o console.');
     }
-
-    closeModal();
-  } catch (err) {
-    console.error('Erro ao salvar venda:', err);
-    alert('Ocorreu um erro ao salvar a venda. Verifique o console.');
-  }
-};
+  };
 
 
-//Deletar Venda
+  //Deletar Venda
   const handleDeleteSale = async () => {
-  if (!selectedSale) return;
+    if (!selectedSale) return;
 
-  try {
-    // Chama a API pra deletar
-    await vendasApi.deleteVenda(selectedSale.id);
+    try {
+      // Chama a API pra deletar
+      await vendasApi.deleteVenda(selectedSale.id);
 
-    // Atualiza o state local
-    setSales(sales.filter((s) => s.id !== selectedSale.id));
+      // Atualiza o state local
+      setSales(sales.filter((s) => s.id !== selectedSale.id));
 
-    closeModal();
-  } catch (err) {
-    console.error("Erro ao deletar venda:", err);
-    alert("Ocorreu um erro ao deletar a venda. Verifique o console.");
-  }
-};
+      closeModal();
+    } catch (err) {
+      console.error("Erro ao deletar venda:", err);
+      alert("Ocorreu um erro ao deletar a venda. Verifique o console.");
+    }
+  };
 
-// Cálculo dos KPIs de Vendas
+  // Cálculo dos KPIs de Vendas
   const totalRevenue = sales
     .filter((s) => s.status === "Concluída")
     .reduce((acc, sale) => acc + sale.valor, 0);

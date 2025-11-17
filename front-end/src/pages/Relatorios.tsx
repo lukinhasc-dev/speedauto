@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { FaDownload, FaChartLine, FaCarSide, FaUsers, FaDollarSign, FaCalendarAlt, FaCar, FaUserTie, FaArrowUp, FaArrowDown, FaTimes, FaReceipt } from 'react-icons/fa';
+import { FaDownload, FaChartLine, FaCarSide, FaUsers, FaDollarSign, FaCalendarAlt, FaCar, FaUserTie, FaArrowUp, FaArrowDown, FaTimes, FaReceipt, FaFileAlt } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import ExportCard from "../components/ExportCard";
 import type { Veiculos } from '../types/Veiculo';
 import type { Venda } from "../types/Venda";
 import * as veiculosApi from '../api/veiculosApi';
@@ -131,17 +132,38 @@ const TopTable: React.FC<{ title: string, data: TopItem[], isCurrency?: boolean,
 
 /* ----------------- Main component ----------------- */
 export default function Relatorios() {
+
+    const exportVeiculosCsv = () => {
+        console.log("Exportando CSV de Veículos...");
+    };
+
+    const exportVendasCsv = () => {
+        console.log("Exportando CSV de Vendas...");
+    };
+
+    const exportClientesCsv = () => {
+        console.log("Exportando CSV de Clientes...");
+    };
+
+    const exportRelatorioGeralCsv = () => {
+        console.log("Exportando CSV Geral...");
+    };
+
     const [dataInicio, setDataInicio] = useState<string>(() => {
         const start = new Date();
         start.setMonth(start.getMonth() - 11); // default 12 months back
         const iso = start.toISOString().split('T')[0];
         return iso;
+
+
     });
     const [dataFim, setDataFim] = useState<string>(() => new Date().toISOString().split('T')[0]);
     const [reportType, setReportType] = useState<'Faturamento' | 'Quantidade'>('Faturamento');
     const [veiculos, setVeiculos] = useState<Veiculos[]>([]);
     const [vendas, setVendas] = useState<Venda[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
+
 
     useEffect(() => {
         let mounted = true;
@@ -496,6 +518,43 @@ export default function Relatorios() {
                     icon={<FaUserTie />}
                 />
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+                <ExportCard
+                    title="Relatório de Carros"
+                    description="Clique para gerar o relatório de veículos"
+                    onExport={exportVeiculosCsv}
+                    icon={<FaCar />}
+                    color="red"
+                />
+
+                <ExportCard
+                    title="Relatório de Vendas"
+                    description="Clique para gerar o relatório de vendas"
+                    onExport={exportVendasCsv}
+                    icon={<FaDollarSign />}
+                    color="green"
+                />
+
+                <ExportCard
+                    title="Relatório de Clientes"
+                    description="Clique para gerar o relatório de clientes"
+                    onExport={exportClientesCsv}
+                    icon={<FaUsers />}
+                    color="blue"
+                />
+
+                <ExportCard
+                    title="Relatório Geral"
+                    description="Resumo completo de todo o sistema"
+                    onExport={exportRelatorioGeralCsv}
+                    icon={<FaFileAlt />}
+                    color="purple"
+                />
+
+            </div>
         </>
+
+
     );
 }

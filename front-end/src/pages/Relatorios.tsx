@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { FaDownload, FaChartLine, FaCarSide, FaUsers, FaDollarSign, FaCalendarAlt, FaCar, FaUserTie, FaArrowUp, FaArrowDown, FaTimes, FaReceipt, FaFileAlt } from 'react-icons/fa';
+import { FaDownload, FaChartLine, FaCarSide, FaUsers, FaDollarSign, FaCalendarAlt, FaCar, FaUserTie, FaArrowUp, FaArrowDown, FaTimes, FaReceipt, FaShoppingCart } from 'react-icons/fa';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import ExportCard from "../components/ExportCard";
 import type { Veiculos } from '../types/Veiculo';
@@ -133,110 +133,110 @@ const TopTable: React.FC<{ title: string, data: TopItem[], isCurrency?: boolean,
 /* ----------------- Main component ----------------- */
 export default function Relatorios() {
 
-   // ----------------- HELPERS -----------------
-const downloadCsv = (filename: string, header: string[], rows: string[][]) => {
-  const sep = ";";
-  const csv =
-    header.join(sep) +
-    "\n" +
-    rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(sep)).join("\n");
+    // ----------------- HELPERS -----------------
+    const downloadCsv = (filename: string, header: string[], rows: string[][]) => {
+        const sep = ";";
+        const csv =
+            header.join(sep) +
+            "\n" +
+            rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(sep)).join("\n");
 
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
 
-  URL.revokeObjectURL(url);
-};
+        URL.revokeObjectURL(url);
+    };
 
-// ----------------- 1) VEÍCULOS -----------------
-const exportVeiculosCsv = () => {
-  if (!veiculos.length) return alert("Nenhum veículo encontrado.");
+    // ----------------- 1) VEÍCULOS -----------------
+    const exportVeiculosCsv = () => {
+        if (!veiculos.length) return alert("Nenhum veículo encontrado.");
 
-  const header = [
-    "ID", "Marca", "Modelo", "Ano", "Cor", "Combustível",
-    "Placa", "Valor Venda", "Status"
-  ];
+        const header = [
+            "ID", "Marca", "Modelo", "Ano", "Cor", "Combustível",
+            "Placa", "Valor Venda", "Status"
+        ];
 
-  const rows = veiculos.map(v => [
-    String(v.id), String(v.marca), String(v.modelo), String(v.ano), String(v.cor), String(v.combustivel),
-    String(v.placa), String(v.valor_venda), String(v.status)
-  ]);
+        const rows = veiculos.map(v => [
+            String(v.id), String(v.marca), String(v.modelo), String(v.ano), String(v.cor), String(v.combustivel),
+            String(v.placa), String(v.valor_venda), String(v.status)
+        ]);
 
-  downloadCsv("veiculos.csv", header, rows);
-};
+        downloadCsv("veiculos.csv", header, rows);
+    };
 
-// ----------------- 2) VENDAS -----------------
-const exportVendasCsv = () => {
-  if (!vendas.length) return alert("Nenhuma venda encontrada.");
+    // ----------------- 2) VENDAS -----------------
+    const exportVendasCsv = () => {
+        if (!vendas.length) return alert("Nenhuma venda encontrada.");
 
-  const header = [
-    "ID", "Veículo", "Cliente", "Data",
-    "Valor", "Status"
-  ];
+        const header = [
+            "ID", "Veículo", "Cliente", "Data",
+            "Valor", "Status"
+        ];
 
-  const rows = vendas.map(v => [
-    String(v.id),
-    String(v.veiculo),
-    String(v.cliente),
-    String(v.data),
-    String(v.valor),
-    String(v.status)
-  ]);
+        const rows = vendas.map(v => [
+            String(v.id),
+            String(v.veiculo),
+            String(v.cliente),
+            String(v.data),
+            String(v.valor),
+            String(v.status)
+        ]);
 
-  downloadCsv("vendas.csv", header, rows);
-};
+        downloadCsv("vendas.csv", header, rows);
+    };
 
-// ----------------- 3) CLIENTES -----------------
-const exportClientesCsv = () => {
-  if (!vendas.length) return alert("Nenhum cliente encontrado.");
+    // ----------------- 3) CLIENTES -----------------
+    const exportClientesCsv = () => {
+        if (!vendas.length) return alert("Nenhum cliente encontrado.");
 
-  const clientesUnicos = [...new Set(vendas.map(v => v.cliente))];
+        const clientesUnicos = [...new Set(vendas.map(v => v.cliente))];
 
-  const header = ["ID", "Cliente"];
-  const rows = clientesUnicos.map((c, i) => [String(i + 1), c]);
+        const header = ["ID", "Cliente"];
+        const rows = clientesUnicos.map((c, i) => [String(i + 1), c]);
 
-  downloadCsv("clientes.csv", header, rows);
-};
+        downloadCsv("clientes.csv", header, rows);
+    };
 
-// ----------------- 4) RELATÓRIO GERAL -----------------
-const exportRelatorioGeralCsv = () => {
-  if (!veiculos.length && !vendas.length)
-    return alert("Nada para exportar.");
+    // ----------------- 4) RELATÓRIO GERAL -----------------
+    const exportRelatorioGeralCsv = () => {
+        if (!veiculos.length && !vendas.length)
+            return alert("Nada para exportar.");
 
-  const header = ["Categoria", "Informação"];
-  const rows: string[][] = [];
+        const header = ["Categoria", "Informação"];
+        const rows: string[][] = [];
 
-  // ---- Veículos ----
-  rows.push(["VEÍCULOS", ""]);
-  veiculos.forEach(v =>
-    rows.push([
-      "Veículo",
-      `${v.marca} ${v.modelo} (${v.ano}) - ${v.placa}`
-    ])
-  );
-  rows.push(["", ""]);
+        // ---- Veículos ----
+        rows.push(["VEÍCULOS", ""]);
+        veiculos.forEach(v =>
+            rows.push([
+                "Veículo",
+                `${v.marca} ${v.modelo} (${v.ano}) - ${v.placa}`
+            ])
+        );
+        rows.push(["", ""]);
 
-  // ---- Clientes ----
-  rows.push(["CLIENTES", ""]);
-  const clientes = [...new Set(vendas.map(v => v.cliente))];
-  clientes.forEach(c => rows.push(["Cliente", c]));
-  rows.push(["", ""]);
+        // ---- Clientes ----
+        rows.push(["CLIENTES", ""]);
+        const clientes = [...new Set(vendas.map(v => v.cliente))];
+        clientes.forEach(c => rows.push(["Cliente", c]));
+        rows.push(["", ""]);
 
-  // ---- Vendas ----
-  rows.push(["VENDAS", ""]);
-  vendas.forEach(v =>
-    rows.push([
-      "Venda",
-      `${v.cliente} comprou ${v.veiculo} por R$${v.valor}`
-    ])
-  );
+        // ---- Vendas ----
+        rows.push(["VENDAS", ""]);
+        vendas.forEach(v =>
+            rows.push([
+                "Venda",
+                `${v.cliente} comprou ${v.veiculo} por R$${v.valor}`
+            ])
+        );
 
-  downloadCsv("relatorio_geral.csv", header, rows);
-};
+        downloadCsv("relatorio_geral.csv", header, rows);
+    };
 
     const [dataInicio, setDataInicio] = useState<string>(() => {
         const start = new Date();
@@ -406,7 +406,7 @@ const exportRelatorioGeralCsv = () => {
             taxaVendas,
             taxaVendasTrend: diffTaxaVendas
         };
-    }, [vendasNoPeriodo, veiculos, dataInicio, dataFim]);
+    }, [vendasNoPeriodo, veiculos, vendas, dataInicio, dataFim]);
 
     const chartDataKey = reportType === 'Faturamento' ? 'Faturamento' : 'Quantidade';
     const chartTitle = reportType === 'Faturamento' ? 'Evolução de Faturamento' : 'Evolução de Volume de Vendas';
@@ -607,40 +607,38 @@ const exportRelatorioGeralCsv = () => {
                     icon={<FaUserTie />}
                 />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
                 <ExportCard
-                    title="Relatório de Carros"
-                    description="Clique para gerar o relatório de veículos"
-                    onExport={exportVeiculosCsv}
+                    title="Relatório de Veículos"
+                    description="Gere aqui o relatório completo de todos os veículos cadastrados."
                     icon={<FaCar />}
                     color="red"
-                />
-
-                <ExportCard
-                    title="Relatório de Vendas"
-                    description="Clique para gerar o relatório de vendas"
-                    onExport={exportVendasCsv}
-                    icon={<FaDollarSign />}
-                    color="green"
+                    onExport={exportVeiculosCsv}
                 />
 
                 <ExportCard
                     title="Relatório de Clientes"
-                    description="Clique para gerar o relatório de clientes"
-                    onExport={exportClientesCsv}
+                    description="Gere aqui o relatório com todos os clientes cadastrados."
                     icon={<FaUsers />}
                     color="blue"
+                    onExport={exportClientesCsv}
+                />
+
+                <ExportCard
+                    title="Relatório de Vendas"
+                    description="Gere os dados completos de vendas realizadas e em andamento."
+                    icon={<FaShoppingCart />}
+                    color="green"
+                    onExport={exportVendasCsv}
                 />
 
                 <ExportCard
                     title="Relatório Geral"
-                    description="Resumo completo de todo o sistema"
-                    onExport={exportRelatorioGeralCsv}
-                    icon={<FaFileAlt />}
+                    description="Relatório completo com clientes, veículos e vendas no mesmo arquivo."
+                    icon={<FaChartLine />}
                     color="purple"
+                    onExport={exportRelatorioGeralCsv}
                 />
-
             </div>
         </>
 

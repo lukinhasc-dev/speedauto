@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
-    FaChartLine, FaCar, FaUsers, FaArrowUp, FaPlus, FaTimes, FaBell, FaClipboardList, FaArrowRight} from 'react-icons/fa';
+    FaChartLine, FaCar, FaUsers, FaArrowUp, FaPlus, FaTimes, FaBell, FaClipboardList, FaArrowRight, FaRobot} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import Chatbot from '../components/Chatbot';
 
 interface KpiCardProps {
     title: string;
@@ -264,6 +265,8 @@ const BaixoEstoque: React.FC = () => {
 
 
 export default function Dashboard() {
+    const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+
     return (
         <>
             <div className="pb-4 border-b border-gray-200 mb-6">
@@ -303,7 +306,7 @@ export default function Dashboard() {
                     <SalesFunnel />
                 </div>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
                 <div className="lg:col-span-2">
                     <TarefasRapidas />
@@ -312,6 +315,18 @@ export default function Dashboard() {
                     <BaixoEstoque />
                 </div>
             </div>
+
+            {/* Chatbot Button */}
+            <button
+                onClick={() => setIsChatbotOpen(true)}
+                className="fixed bottom-4 right-4 bg-speedauto-primary text-white p-4 rounded-full shadow-lg hover:bg-speedauto-primary/90 transition-colors z-40"
+                title="Abrir Chatbot"
+            >
+                <FaRobot size={20} />
+            </button>
+
+            {/* Chatbot Component */}
+            <Chatbot isOpen={isChatbotOpen} onClose={() => setIsChatbotOpen(false)} />
         </>
     );
 }

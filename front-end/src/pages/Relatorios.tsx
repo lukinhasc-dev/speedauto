@@ -133,21 +133,110 @@ const TopTable: React.FC<{ title: string, data: TopItem[], isCurrency?: boolean,
 /* ----------------- Main component ----------------- */
 export default function Relatorios() {
 
-    const exportVeiculosCsv = () => {
-        console.log("Exportando CSV de Veículos...");
-    };
+   // ----------------- HELPERS -----------------
+const downloadCsv = (filename: string, header: string[], rows: string[][]) => {
+  const sep = ";";
+  const csv =
+    header.join(sep) +
+    "\n" +
+    rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(sep)).join("\n");
 
-    const exportVendasCsv = () => {
-        console.log("Exportando CSV de Vendas...");
-    };
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
 
-    const exportClientesCsv = () => {
-        console.log("Exportando CSV de Clientes...");
-    };
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
 
-    const exportRelatorioGeralCsv = () => {
-        console.log("Exportando CSV Geral...");
-    };
+  URL.revokeObjectURL(url);
+};
+
+// ----------------- 1) VEÍCULOS -----------------
+const exportVeiculosCsv = () => {
+  if (!veiculos.length) return alert("Nenhum veículo encontrado.");
+
+  const header = [
+    "ID", "Marca", "Modelo", "Ano", "Cor", "Combustível",
+    "Placa", "Valor Venda", "Status"
+  ];
+
+  const rows = veiculos.map(v => [
+    String(v.id), String(v.marca), String(v.modelo), String(v.ano), String(v.cor), String(v.combustivel),
+    String(v.placa), String(v.valor_venda), String(v.status)
+  ]);
+
+  downloadCsv("veiculos.csv", header, rows);
+};
+
+// ----------------- 2) VENDAS -----------------
+const exportVendasCsv = () => {
+  if (!vendas.length) return alert("Nenhuma venda encontrada.");
+
+  const header = [
+    "ID", "Veículo", "Cliente", "Data",
+    "Valor", "Status"
+  ];
+
+  const rows = vendas.map(v => [
+    String(v.id),
+    String(v.veiculo),
+    String(v.cliente),
+    String(v.data),
+    String(v.valor),
+    String(v.status)
+  ]);
+
+  downloadCsv("vendas.csv", header, rows);
+};
+
+// ----------------- 3) CLIENTES -----------------
+const exportClientesCsv = () => {
+  if (!vendas.length) return alert("Nenhum cliente encontrado.");
+
+  const clientesUnicos = [...new Set(vendas.map(v => v.cliente))];
+
+  const header = ["ID", "Cliente"];
+  const rows = clientesUnicos.map((c, i) => [String(i + 1), c]);
+
+  downloadCsv("clientes.csv", header, rows);
+};
+
+// ----------------- 4) RELATÓRIO GERAL -----------------
+const exportRelatorioGeralCsv = () => {
+  if (!veiculos.length && !vendas.length)
+    return alert("Nada para exportar.");
+
+  const header = ["Categoria", "Informação"];
+  const rows: string[][] = [];
+
+  // ---- Veículos ----
+  rows.push(["VEÍCULOS", ""]);
+  veiculos.forEach(v =>
+    rows.push([
+      "Veículo",
+      `${v.marca} ${v.modelo} (${v.ano}) - ${v.placa}`
+    ])
+  );
+  rows.push(["", ""]);
+
+  // ---- Clientes ----
+  rows.push(["CLIENTES", ""]);
+  const clientes = [...new Set(vendas.map(v => v.cliente))];
+  clientes.forEach(c => rows.push(["Cliente", c]));
+  rows.push(["", ""]);
+
+  // ---- Vendas ----
+  rows.push(["VENDAS", ""]);
+  vendas.forEach(v =>
+    rows.push([
+      "Venda",
+      `${v.cliente} comprou ${v.veiculo} por R$${v.valor}`
+    ])
+  );
+
+  downloadCsv("relatorio_geral.csv", header, rows);
+};
 
     const [dataInicio, setDataInicio] = useState<string>(() => {
         const start = new Date();

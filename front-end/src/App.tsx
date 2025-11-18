@@ -13,6 +13,7 @@ import Clientes from "./pages/Clientes";
 import Relatorios from "./pages/Relatorios";
 import Configuracoes from "./pages/Configuracoes";
 import Admin from "./pages/Admin";
+import Financiamento from "./pages/Financiamento"
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/vendas" element={<Vendas />} />
 
         <Route path="/clientes" element={<Clientes/>} />
+        <Route path="/financiamento" element={<Financiamento />} />
         <Route path="/relatorios" element={<Relatorios/>} />
         <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, type FormEvent } from 'react';
 import { FaRobot, FaTimes, FaPaperPlane, FaSync, FaCar, FaDollarSign, FaUsers } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { postMessageToBot, type ChatbotResponse } from '../api/chatbotApi';
+import { postMessageToBot } from '../api/chatbotApi';
 // --- Interfaces ---
 interface ChatMessage {
     id: number;

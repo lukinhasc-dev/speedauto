@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import {
   FaTachometerAlt, FaCar, FaDollarSign, FaUsers, FaChartPie, FaCog, FaCarSide, FaSignOutAlt,
 } from 'react-icons/fa';
+import { FaMoneyBill1Wave } from 'react-icons/fa6';
 
 export default function Sidebar() {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -26,6 +27,7 @@ export default function Sidebar() {
           <li><NavLink to="/veiculos" className={navLinkClass}><FaCar /> Veículos</NavLink></li>
           <li><NavLink to="/vendas" className={navLinkClass}><FaDollarSign /> Vendas</NavLink></li>
           <li><NavLink to="/clientes" className={navLinkClass}><FaUsers /> Clientes</NavLink></li>
+          <li><NavLink to="/financiamento" className={navLinkClass}><FaMoneyBill1Wave /> Financiamento</NavLink></li>
           <li><NavLink to="/relatorios" className={navLinkClass}><FaChartPie /> Relatórios</NavLink></li>
           <li><NavLink to="/configuracoes" className={navLinkClass}><FaCog /> Configurações</NavLink></li>
         </ul>

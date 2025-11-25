@@ -312,7 +312,7 @@ export default function Dashboard() {
     return (
         <>
             <div className="pb-4 border-b border-gray-200 mb-6">
-                <h1 className="text-3xl font-bold text-gray-800">Olá, Usuário! 👋</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Bem vindo ao SpeedAuto! 👋</h1>
                 <p className="text-speedauto-muted mt-1">Aqui está um resumo do seu negócio hoje. Utilize a busca acima para encontrar informações rapidamente.</p>
             </div>
 

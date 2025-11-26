@@ -51,10 +51,10 @@ router.post('/login', async (req, res) => {
 // REGISTRO (ADMIN)
 router.post('/register', async (req, res) => {
   try {
-    const { email, senha } = req.body;
+    const { email, senha, nome, telefone } = req.body;
 
-    if (!email || !senha) {
-      return res.status(400).json({ message: 'Email e senha são obrigatórios' });
+    if (!email || !senha || !nome || !telefone) {
+      return res.status(400).json({ message: 'Email, senha, nome e telefone são obrigatórios' });
     }
 
     // Verifica se já existe
@@ -74,7 +74,7 @@ router.post('/register', async (req, res) => {
     // Cria o novo usuário
     const { error } = await supabase
       .from('users')
-      .insert([{ email: email.toLowerCase(), senha: hashedPassword }]);
+      .insert([{ email: email.toLowerCase(), senha: hashedPassword, nome, telefone }]);
 
     if (error) throw error;
 

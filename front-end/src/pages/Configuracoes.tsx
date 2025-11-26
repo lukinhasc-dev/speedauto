@@ -166,7 +166,7 @@ export default function Configuracoes() {
                             {/* Rodapé save*/}
                             <div className="p-4 bg-gray-50 border-t rounded-b-lg flex justify-end">
                                 <button type="submit" className="bg-speedauto-primary text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-speedauto-primary-hover transition-all shadow-md">
-                                    <FaSave /> Salvar Perfil
+                                    <FaSave /> Salvar
                                 </button>
                             </div>
                         </form>

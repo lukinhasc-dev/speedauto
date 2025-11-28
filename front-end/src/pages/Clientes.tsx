@@ -62,6 +62,7 @@ export default function Clientes() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("Todos");
+  const [phoneInput, setPhoneInput] = useState("");
 
   // Buscar clientes
   useEffect(() => {
@@ -109,11 +110,25 @@ export default function Clientes() {
   const openModal = (mode: ModalMode, client: Clientes | null = null) => {
     setModalMode(mode);
     setSelectedClient(client);
+    // Inicializar o campo de telefone com a máscara já aplicada
+    if (client?.telefone) {
+      const cleaned = String(client.telefone).replace(/\D/g, "");
+      let formatted = cleaned;
+      if (cleaned.length === 11) {
+        formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+      } else if (cleaned.length === 10) {
+        formatted = `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+      }
+      setPhoneInput(formatted);
+    } else {
+      setPhoneInput("");
+    }
   };
 
   const closeModal = () => {
     setModalMode("closed");
     setSelectedClient(null);
+    setPhoneInput("");
   };
 
   const handleSaveClient = async (e: FormEvent<HTMLFormElement>) => {
@@ -125,11 +140,14 @@ export default function Clientes() {
       string
     >;
 
+    // Remover a máscara do telefone para salvar apenas os dígitos
+    const cleanedPhone = phoneInput.replace(/\D/g, "");
+
     const newOrUpdatedClient: Clientes = {
       id: modalMode === "add" ? Date.now() : selectedClient?.id ?? 0,
       nome: clientData.nome || selectedClient?.nome || "",
       email: clientData.email || selectedClient?.email || "",
-      telefone: clientData.telefone || selectedClient?.telefone || "",
+      telefone: cleanedPhone || selectedClient?.telefone || "",
       status:
         (clientData.status as Clientes["status"]) ||
         selectedClient?.status ||
@@ -181,6 +199,39 @@ export default function Clientes() {
       return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
     return parts[0][0].toUpperCase();
+  };
+
+  const formatPhone = (phone: string | undefined | null) => {
+    if (!phone) return "—";
+    const phoneStr = String(phone);
+    const cleaned = phoneStr.replace(/\D/g, "");
+
+    if (cleaned.length === 11) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    } else if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    }
+
+    return phoneStr;
+  };
+
+  const handlePhoneInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target.value;
+    const cleaned = input.replace(/\D/g, "");
+    const limited = cleaned.slice(0, 11);
+
+    let formatted = limited;
+    if (limited.length > 10) {
+      formatted = `(${limited.slice(0, 2)}) ${limited.slice(2, 7)}-${limited.slice(7)}`;
+    } else if (limited.length > 6) {
+      formatted = `(${limited.slice(0, 2)}) ${limited.slice(2, 6)}-${limited.slice(6)}`;
+    } else if (limited.length > 2) {
+      formatted = `(${limited.slice(0, 2)}) ${limited.slice(2)}`;
+    } else if (limited.length > 0) {
+      formatted = `(${limited}`;
+    }
+
+    setPhoneInput(formatted);
   };
 
   const renderStatusBadge = (status: StatusCliente) => {
@@ -286,7 +337,7 @@ export default function Clientes() {
                     </div>
                   </td>
                   <td className="p-4 text-sm text-gray-700">{client.email ?? "—"}</td>
-                  <td className="p-4 text-sm text-gray-700">{client.telefone ?? "—"}</td>
+                  <td className="p-4 text-sm text-gray-700">{formatPhone(client.telefone)}</td>
                   <td className="p-4 text-sm">{renderStatusBadge(client.status)}</td>
                   <td className="p-4 text-sm">
                     <div className="flex items-center justify-center gap-2">
@@ -398,7 +449,8 @@ export default function Clientes() {
                       <input
                         type="text"
                         name="telefone"
-                        defaultValue={selectedClient?.telefone ?? ""}
+                        value={phoneInput}
+                        onChange={handlePhoneInput}
                         className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
                         placeholder="Ex: (11) 99999-9999"
                         required
@@ -483,7 +535,7 @@ export default function Clientes() {
                 />
                 <DetailItem
                   label="Telefone"
-                  value={selectedClient.telefone ?? "—"}
+                  value={formatPhone(selectedClient.telefone)}
                   icon={<FaPhone />}
                 />
               </div>

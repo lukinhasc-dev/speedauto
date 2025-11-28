@@ -35,6 +35,7 @@ export default function Veiculos() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<string>('Todos');
     const [filterMarca, setFilterMarca] = useState<string>('Todas');
+    const [valorInput, setValorInput] = useState('');
 
 
     useEffect(() => {
@@ -82,10 +83,22 @@ export default function Veiculos() {
     const openModal = (mode: ModalMode, vehicle: Veiculos | null = null) => {
         setModalMode(mode);
         setSelectedVehicle(vehicle);
+        if (vehicle?.valor_venda) {
+            const formatted = vehicle.valor_venda.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            setValorInput(formatted);
+        } else {
+            setValorInput('');
+        }
+        setPlaca(vehicle?.placa || '');
     };
     const closeModal = () => {
         setModalMode('closed');
         setSelectedVehicle(null);
+        setValorInput('');
+        setPlaca('');
     };
 
     const handleSaveVehicle = async (e: FormEvent<HTMLFormElement>) => {
@@ -96,7 +109,7 @@ export default function Veiculos() {
             const formDataObj = Object.fromEntries(formData.entries());
 
             // Validação básica dos campos obrigatórios
-            const requiredFields = ['marca', 'modelo', 'placa', 'ano', 'valor'];
+            const requiredFields = ['marca', 'modelo', 'placa', 'ano'];
             for (const field of requiredFields) {
                 if (!formDataObj[field] || String(formDataObj[field]).trim() === '') {
                     alert(`O campo "${field}" é obrigatório.`);
@@ -104,15 +117,20 @@ export default function Veiculos() {
                 }
             }
 
+            if (!valorInput || valorInput.trim() === '') {
+                alert('O campo "valor" é obrigatório.');
+                return;
+            }
+
             // Conversão dos campos numéricos corretamente
             const ano = parseInt(formDataObj.ano as string);
-            const valor_venda = parseFloat(formDataObj.valor as string);
+            const valor_venda = parseCurrencyToNumber(valorInput);
 
             if (isNaN(ano)) {
                 alert('Ano inválido.');
                 return;
             }
-            if (isNaN(valor_venda)) {
+            if (isNaN(valor_venda) || valor_venda <= 0) {
                 alert('Valor de venda inválido.');
                 return;
             }
@@ -174,6 +192,22 @@ export default function Veiculos() {
 
     const formatCurrency = (value: number) => {
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
+
+    const handleValorInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let input = e.target.value;
+        input = input.replace(/\D/g, '');
+        const numValue = parseInt(input || '0') / 100;
+        const formatted = numValue.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        setValorInput(formatted);
+    };
+
+    const parseCurrencyToNumber = (value: string): number => {
+        const cleaned = value.replace(/\./g, '').replace(',', '.');
+        return parseFloat(cleaned) || 0;
     };
 
 
@@ -425,9 +459,9 @@ export default function Veiculos() {
 
                                         <div className="form-group">
                                             <label htmlFor="valor" className="block text-sm font-semibold mb-1 text-gray-700">Valor de Venda (R$)</label>
-                                            <input type="number" step="0.01" name="valor" defaultValue={selectedVehicle?.valor_venda}
+                                            <input type="text" name="valor" value={valorInput} onChange={handleValorInput}
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
-                                                placeholder="Ex: 150000.00" required />
+                                                placeholder="Ex: 150.000,00" required />
                                         </div>
 
                                         <div className="form-group">

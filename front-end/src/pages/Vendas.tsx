@@ -53,6 +53,7 @@ export default function Vendas() {
   );
   const [dataInicio, setDataInicio] = useState<string>("");
   const [dataFim, setDataFim] = useState<string>("");
+  const [valorInput, setValorInput] = useState('');
 
   useEffect(() => {
     const fetchVendas = async () => {
@@ -104,10 +105,36 @@ export default function Vendas() {
   const openModal = (mode: ModalMode, sale: Venda | null = null) => {
     setModalMode(mode);
     setSelectedSale(sale);
+    if (sale?.valor) {
+      const formatted = sale.valor.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      setValorInput(formatted);
+    } else {
+      setValorInput('');
+    }
   };
   const closeModal = () => {
     setModalMode("closed");
     setSelectedSale(null);
+    setValorInput('');
+  };
+
+  const handleValorInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value;
+    input = input.replace(/\D/g, '');
+    const numValue = parseInt(input || '0') / 100;
+    const formatted = numValue.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    setValorInput(formatted);
+  };
+
+  const parseCurrencyToNumber = (value: string): number => {
+    const cleaned = value.replace(/\./g, '').replace(',', '.');
+    return parseFloat(cleaned) || 0;
   };
 
   //Salvar Venda (Adicionar ou Editar)
@@ -117,14 +144,19 @@ export default function Vendas() {
     const formData = new FormData(e.currentTarget);
     const saleData = Object.fromEntries(formData.entries()) as Omit<Venda, 'id'> & { valor: string };
 
+    if (!valorInput || valorInput.trim() === '') {
+      alert('O campo "valor" é obrigatório.');
+      return;
+    }
+
     try {
       let savedSale: Venda;
+      const valorNumber = parseCurrencyToNumber(valorInput);
 
-      // Cast para string garante que podemos usar replace
-      const valorRaw = saleData.valor as string;
-      const valorNumber = parseFloat(
-        valorRaw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '')
-      );
+      if (isNaN(valorNumber) || valorNumber <= 0) {
+        alert('Valor inválido.');
+        return;
+      }
 
       if (modalMode === 'add') {
         savedSale = await vendasApi.addVenda({ ...saleData, valor: valorNumber });
@@ -500,12 +532,12 @@ export default function Vendas() {
                         Valor Total (R$)
                       </label>
                       <input
-                        type="number"
-                        step="0.01"
+                        type="text"
                         name="valor"
-                        defaultValue={selectedSale?.valor}
+                        value={valorInput}
+                        onChange={handleValorInput}
                         className="w-full border border-gray-300 rounded-lg p-2 text-sm transition-all focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50"
-                        placeholder="Ex: 120000.00"
+                        placeholder="Ex: 120.000,00"
                         required
                       />
                     </div>

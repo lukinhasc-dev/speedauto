@@ -219,13 +219,13 @@ export default function FinanciamentoPage() {
           label="Valor do veículo"
           value={valor}
           setValue={setValor}
-          placeholder="Ex: 55.000"
+          placeholder="Ex: 55.000,00"
         />
         <InputMonetario
           label="Entrada"
           value={entrada}
           setValue={setEntrada}
-          placeholder="Ex: 10.000"
+          placeholder="Ex: 10.000,00"
         />
         <InputNumero
           label="Quantidade de parcelas"
@@ -517,13 +517,52 @@ function InputMonetario({
   setValue,
   placeholder,
 }: InputMonetarioProps) {
+  const [displayValue, setDisplayValue] = useState('');
+
+  // Atualiza o displayValue quando o value muda (ex: ao clicar nos botões de exemplo)
+  useState(() => {
+    if (value !== null && value !== undefined) {
+      const formatted = value.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      setDisplayValue(formatted);
+    } else {
+      setDisplayValue('');
+    }
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let input = e.target.value;
+    // Remove tudo que não é número
+    input = input.replace(/\D/g, '');
+
+    if (input === '') {
+      setDisplayValue('');
+      setValue(0);
+      return;
+    }
+
+    // Converte para número (divide por 100 para ter as casas decimais)
+    const numValue = parseInt(input || '0') / 100;
+
+    // Formata para exibição
+    const formatted = numValue.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    setDisplayValue(formatted);
+    setValue(numValue);
+  };
+
   return (
     <div className="space-y-1">
       <label className="text-sm text-gray-700">{label}</label>
       <input
-        type="number"
-        value={value ?? ""}
-        onChange={(e) => setValue(Number(e.target.value))}
+        type="text"
+        value={displayValue}
+        onChange={handleChange}
         placeholder={placeholder}
         className="
           w-full border border-gray-300 p-3 rounded-lg 

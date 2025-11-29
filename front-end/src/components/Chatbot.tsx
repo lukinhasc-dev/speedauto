@@ -2,16 +2,26 @@ import React, { useState, useEffect, useRef, type FormEvent } from 'react';
 import { FaRobot, FaTimes, FaPaperPlane, FaSync, FaCar, FaDollarSign, FaUsers } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { postMessageToBot } from '../api/chatbotApi';
+
 // --- Interfaces ---
 interface ChatMessage {
     id: number;
     text: string;
     sender: 'user' | 'ai';
     timestamp: string;
-    suggestions?: Array<{ text: string; action: string; icon: React.ReactNode }>;
+    suggestions?: Array<{ text: string; action: string; icon: string }>;
 }
 
-const SuggestionButtons: React.FC<{ suggestions: Array<{ text: string; action: string; icon: React.ReactNode }>, onClick: (action: string) => void }> = ({ suggestions, onClick }) => (
+const getIcon = (iconName: string) => {
+    switch (iconName) {
+        case 'car': return <FaCar />;
+        case 'dollar': return <FaDollarSign />;
+        case 'users': return <FaUsers />;
+        default: return <FaRobot />;
+    }
+};
+
+const SuggestionButtons: React.FC<{ suggestions: Array<{ text: string; action: string; icon: string }>, onClick: (action: string) => void }> = ({ suggestions, onClick }) => (
     <div className="flex flex-wrap gap-2 mt-3">
         {suggestions.map((suggestion, index) => (
             <button
@@ -19,7 +29,7 @@ const SuggestionButtons: React.FC<{ suggestions: Array<{ text: string; action: s
                 onClick={() => onClick(suggestion.action)}
                 className="text-xs font-semibold bg-speedauto-primary/10 text-speedauto-primary border border-speedauto-primary/30 rounded-full px-3 py-1.5 hover:bg-speedauto-primary/20 transition-colors flex items-center gap-1.5"
             >
-                {suggestion.icon} {suggestion.text}
+                {getIcon(suggestion.icon)} {suggestion.text}
             </button>
         ))}
     </div>
@@ -32,12 +42,11 @@ const WELCOME_MESSAGE: ChatMessage = {
     sender: 'ai',
     timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     suggestions: [
-        { text: 'Ver Estoque', action: 'NAV_VEICULOS', icon: <FaCar /> },
-        { text: 'Registrar Venda', action: 'NAV_VENDAS', icon: <FaDollarSign /> },
-        { text: 'Ver Clientes', action: 'NAV_CLIENTES', icon: <FaUsers /> },
+        { text: 'Ver Estoque', action: 'NAV_VEICULOS', icon: 'car' },
+        { text: 'Registrar Venda', action: 'NAV_VENDAS', icon: 'dollar' },
+        { text: 'Ver Clientes', action: 'NAV_CLIENTES', icon: 'users' },
     ],
 };
-
 
 export default function Chatbot() {
     const [isMinimized, setIsMinimized] = useState(true);
@@ -95,7 +104,26 @@ export default function Chatbot() {
     useEffect(() => {
         const storedMessages = localStorage.getItem('chatHistory');
         if (storedMessages) {
-            setMessages(JSON.parse(storedMessages));
+            try {
+                const parsed = JSON.parse(storedMessages);
+                // Validação simples para ver se é a estrutura nova (icon string)
+                // Se encontrar algum objeto no lugar de string no icon, limpa tudo
+                const isValid = parsed.every((m: any) =>
+                    !m.suggestions || m.suggestions.every((s: any) => typeof s.icon === 'string')
+                );
+
+                if (isValid) {
+                    setMessages(parsed);
+                } else {
+                    console.warn("Formato de histórico de chat antigo/inválido. Limpando.");
+                    localStorage.removeItem('chatHistory');
+                    setMessages([WELCOME_MESSAGE]);
+                }
+            } catch (e) {
+                console.error("Erro ao ler histórico do chat", e);
+                localStorage.removeItem('chatHistory');
+                setMessages([WELCOME_MESSAGE]);
+            }
         } else {
             setMessages([WELCOME_MESSAGE]);
         }

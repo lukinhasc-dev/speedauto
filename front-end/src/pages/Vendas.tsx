@@ -547,7 +547,7 @@ export default function Vendas() {
                         htmlFor="data"
                         className="block text-sm font-semibold mb-1 text-gray-700"
                       >
-                        Data de Conclusão
+                        Data da Venda
                       </label>
                       <input
                         type="date"

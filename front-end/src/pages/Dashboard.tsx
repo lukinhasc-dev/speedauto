@@ -4,6 +4,7 @@ import {
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardData, type DashboardData } from '../api/dashboardApi';
+import InputModal from '../components/InputModal';
 
 // --- Interfaces ---
 interface KpiCardProps {
@@ -150,21 +151,23 @@ const TarefasRapidas: React.FC = () => {
         const savedTasks = localStorage.getItem('speedauto_tasks');
         return savedTasks ? JSON.parse(savedTasks) : [];
     });
+    const [showInputModal, setShowInputModal] = useState(false);
 
     useEffect(() => {
         localStorage.setItem('speedauto_tasks', JSON.stringify(tasks));
     }, [tasks]);
 
     const handleAddTask = () => {
-        const newTaskLabel = prompt("Digite a nova tarefa:");
-        if (newTaskLabel && newTaskLabel.trim()) {
-            const newTask: Task = {
-                id: Date.now(),
-                label: newTaskLabel.trim(),
-                completed: false,
-            };
-            setTasks(prevTasks => [...prevTasks, newTask]);
-        }
+        setShowInputModal(true);
+    };
+
+    const handleConfirmAddTask = (newTaskLabel: string) => {
+        const newTask: Task = {
+            id: Date.now(),
+            label: newTaskLabel,
+            completed: false,
+        };
+        setTasks(prevTasks => [...prevTasks, newTask]);
     };
 
     const handleToggle = (id: number) => {
@@ -211,7 +214,7 @@ const TarefasRapidas: React.FC = () => {
     return (
         <div className="bg-white rounded-lg p-6 shadow border border-gray-200 h-full">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Tarefas Rápidas</h2>
+                <h2 className="text-xl font-semibold text-gray-800">Anotações Rápidas</h2>
                 <button
                     onClick={handleAddTask}
                     className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-speedauto-primary bg-speedauto-primary/10 rounded-lg hover:bg-speedauto-primary/20 transition-colors"
@@ -230,6 +233,16 @@ const TarefasRapidas: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modal para adicionar tarefa */}
+            <InputModal
+                isOpen={showInputModal}
+                onClose={() => setShowInputModal(false)}
+                onConfirm={handleConfirmAddTask}
+                title="Nova Anotação"
+                placeholder="Digite sua anotação..."
+                confirmButtonText="Adicionar"
+            />
         </div>
     );
 };
@@ -332,9 +345,9 @@ export default function Dashboard() {
                     colorClass="text-speedauto-yellow"
                 />
                 <KpiCard
-                    title="Novos Clientes (Mês)"
+                    title="Total de Clientes"
                     value={stats.kpis.novosClientes.toString()}
-                    comparison="Meta do mês: 20"
+                    comparison="Registrados"
                     icon={<FaUsers />}
                     colorClass="text-speedauto-green"
                 />

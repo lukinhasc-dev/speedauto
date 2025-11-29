@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { ReactNode } from "react";
 import {
-  FaCalculator,
   FaCarSide,
   FaTruck,
   FaMotorcycle,
@@ -175,12 +174,9 @@ export default function FinanciamentoPage() {
   return (
     <div className="space-y-12 mb-10">
 
-      <div>
-        <h1 className="text-4xl font-extrabold text-gray-800 flex items-center gap-3 tracking-tight">
-          <FaCalculator className="text-blue-600" size={32} />
-          Simulador de Financiamento Veicular
-        </h1>
-        <p className="text-gray-500 mt-1 max-w-2xl">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Simulador de Financiamento Veicular</h1>
+        <p className="text-gray-500 mt-1">
           Calcule parcelas, entrada ideal e compare os sistemas Price e SAC
           para financiamento de carros, motos e utilitários.
         </p>
@@ -488,18 +484,18 @@ function CardOption({ icon, title, desc, onClick }: CardOptionProps) {
     <button
       onClick={onClick}
       className="
-        bg-white shadow-sm border border-gray-200 rounded-xl p-5 
+        bg-white shadow-sm border border-gray-200 rounded-xl p-4
         hover:shadow-lg hover:border-blue-500 transition-all duration-300 
-        flex gap-4 items-start group
+        flex flex-col items-start text-left group w-full
       "
     >
-      <div className="text-blue-600 group-hover:text-blue-700 transition">
-        {icon}
+      <div className="flex items-center gap-3 mb-2">
+        <div className="text-blue-600 group-hover:text-blue-700 transition">
+          {icon}
+        </div>
+        <h3 className="font-bold text-gray-800 text-lg leading-none">{title}</h3>
       </div>
-      <div>
-        <h3 className="font-semibold text-gray-800 text-lg">{title}</h3>
-        <p className="text-sm text-gray-500">{desc}</p>
-      </div>
+      <p className="text-sm text-gray-500">{desc}</p>
     </button>
   );
 }
@@ -520,7 +516,7 @@ function InputMonetario({
   const [displayValue, setDisplayValue] = useState('');
 
   // Atualiza o displayValue quando o value muda (ex: ao clicar nos botões de exemplo)
-  useState(() => {
+  useEffect(() => {
     if (value !== null && value !== undefined) {
       const formatted = value.toLocaleString('pt-BR', {
         minimumFractionDigits: 2,
@@ -530,7 +526,7 @@ function InputMonetario({
     } else {
       setDisplayValue('');
     }
-  });
+  }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let input = e.target.value;

@@ -9,12 +9,13 @@ import { testConnection } from './db';
 import chatbotRoutes from './routes/chatbotRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 
-dotenv.config({ path: '../.env' });
+dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: '*' })); // <== adiciona aqui
-app.use(express.json({ limit: '10mb' })); // Aumenta limite para 10MB
+app.use(cors({ origin: '*' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use('/veiculos', veiculosRoutes);

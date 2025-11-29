@@ -98,16 +98,15 @@ export default function Chatbot() {
     const handleClearChat = () => {
         setMessages([WELCOME_MESSAGE]);
         setIsLoading(false);
-        localStorage.removeItem('chatHistory');
+        localStorage.removeItem('chatHistory_v2');
     };
 
     useEffect(() => {
-        const storedMessages = localStorage.getItem('chatHistory');
+        // FORÇA RESET: mudamos a chave para invalidar dados antigos
+        const storedMessages = localStorage.getItem('chatHistory_v2');
         if (storedMessages) {
             try {
                 const parsed = JSON.parse(storedMessages);
-                // Validação simples para ver se é a estrutura nova (icon string)
-                // Se encontrar algum objeto no lugar de string no icon, limpa tudo
                 const isValid = parsed.every((m: any) =>
                     !m.suggestions || m.suggestions.every((s: any) => typeof s.icon === 'string')
                 );
@@ -115,13 +114,13 @@ export default function Chatbot() {
                 if (isValid) {
                     setMessages(parsed);
                 } else {
-                    console.warn("Formato de histórico de chat antigo/inválido. Limpando.");
-                    localStorage.removeItem('chatHistory');
+                    console.warn("Formato inválido. Limpando.");
+                    localStorage.removeItem('chatHistory_v2');
                     setMessages([WELCOME_MESSAGE]);
                 }
             } catch (e) {
-                console.error("Erro ao ler histórico do chat", e);
-                localStorage.removeItem('chatHistory');
+                console.error("Erro ao ler histórico", e);
+                localStorage.removeItem('chatHistory_v2');
                 setMessages([WELCOME_MESSAGE]);
             }
         } else {
@@ -130,7 +129,7 @@ export default function Chatbot() {
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('chatHistory', JSON.stringify(messages));
+        localStorage.setItem('chatHistory_v2', JSON.stringify(messages));
         if (isMinimized && messages.length > 1 && messages[messages.length - 1].sender === 'ai') {
             setUnread(true);
         }

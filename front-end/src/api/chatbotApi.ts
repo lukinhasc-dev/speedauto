@@ -20,7 +20,7 @@ export interface ChatbotResponse {
 export const postMessageToBot = async (message: string): Promise<ChatbotResponse> => {
   try {
     const response = await axios.post<ChatbotResponse>(
-      `${API_URL}/api/chatbot`,
+      `${API_URL}/chatbot`,
       { message },
       {
         timeout: 15000,

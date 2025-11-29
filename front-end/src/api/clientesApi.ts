@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Clientes } from '../types/Cliente';
 
-const API_URL = 'http://localhost:5000/clientes';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // GET todos os clientes
 export const getClientes = async (): Promise<Clientes[]> => {

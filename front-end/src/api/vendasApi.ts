@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Venda } from '../types/Venda';
 
-const API_URL = 'http://localhost:5000/vendas';
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const getVendas = async (): Promise<Venda[]> => {
     const response = await axios.get<Venda[]>(API_URL);

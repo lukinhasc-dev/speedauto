@@ -32,7 +32,7 @@ export interface DashboardData {
     baixoEstoque: BaixoEstoque[];
 }
 
-const API_URL = 'http://localhost:5000/api/dashboard';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // GET /api/dashboard/stats
 export const getDashboardData = async (): Promise<DashboardData> => {

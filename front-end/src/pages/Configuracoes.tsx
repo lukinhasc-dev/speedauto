@@ -1,6 +1,7 @@
 import React, { useState, useEffect, type FormEvent } from 'react';
 import { FaUser, FaLock, FaBell, FaUpload, FaTrash, FaCheckCircle, FaCamera } from 'react-icons/fa';
 import * as authApi from '../api/authApi';
+import RemovePhotoConfirm from '../components/RemovePhotoConfirm';
 
 // --- Interfaces ---
 interface UserProfile {
@@ -38,6 +39,7 @@ export default function Configuracoes() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [photoInput, setPhotoInput] = useState('');
     const [uploading, setUploading] = useState(false);
+    const [showRemoveModal, setShowRemoveModal] = useState(false);
 
     const [notifications, setNotifications] = useState({
         emailLeads: true,
@@ -90,14 +92,13 @@ export default function Configuracoes() {
         }
     };
 
-    const handleRemovePhoto = async () => {
+    const confirmRemovePhoto = async () => {
         if (!profile) {
             alert('Usuário não encontrado.');
             return;
         }
 
-        const confirmed = window.confirm('Deseja remover sua foto de perfil?');
-        if (!confirmed) return;
+        setShowRemoveModal(false); // Fecha o modal antes de prosseguir
 
         setUploading(true);
         try {
@@ -249,7 +250,7 @@ export default function Configuracoes() {
                                             </button>
                                             <button
                                                 type="button"
-                                                onClick={handleRemovePhoto}
+                                                onClick={() => setShowRemoveModal(true)}
                                                 disabled={uploading || !profile?.foto}
                                                 className="text-speedauto-red font-semibold py-2 px-4 rounded-lg flex items-center gap-2 hover:bg-red-50 transition-all border border-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
@@ -390,6 +391,16 @@ export default function Configuracoes() {
                     )}
                 </div>
             </div>
+
+            {/* Modal de confirmação de remoção */}
+            <RemovePhotoConfirm
+                isOpen={showRemoveModal}
+                onClose={() => setShowRemoveModal(false)}
+                onConfirm={confirmRemovePhoto}
+                previewUrl={profile?.foto || undefined}
+                title="Remover Foto de Perfil"
+                message="Tem certeza que deseja remover sua foto de perfil? Você poderá adicionar uma nova a qualquer momento."
+            />
         </>
     );
 }

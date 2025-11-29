@@ -96,19 +96,22 @@ router.put('/update-photo', async (req, res) => {
   try {
     const { userId, fotoUrl } = req.body;
 
-    if (!userId || !fotoUrl) {
-      return res.status(400).json({ message: 'userId e fotoUrl são obrigatórios' });
+    if (userId === undefined || userId === null) {
+      return res.status(400).json({ message: 'userId é obrigatório' });
     }
+
+    // Permite fotoUrl vazio para remover a foto
+    const photoValue = fotoUrl === '' ? null : fotoUrl;
 
     // Atualiza a foto do usuário
     const { error } = await supabase
       .from('users')
-      .update({ foto: fotoUrl })
+      .update({ foto: photoValue })
       .eq('id', userId);
 
     if (error) throw error;
 
-    return res.status(200).json({ message: 'Foto atualizada com sucesso!', foto: fotoUrl });
+    return res.status(200).json({ message: 'Foto atualizada com sucesso!', foto: photoValue });
   } catch (err) {
     console.error('Erro ao atualizar foto:', err);
     return res.status(500).json({ message: 'Erro interno no servidor.' });

@@ -1,38 +1,54 @@
-import { useState } from 'react';
-import { FaSearch, FaBell } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaBell, FaUser } from 'react-icons/fa';
+
+interface UserData {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string;
+  foto: string | null;
+}
 
 export default function DashboardHeader() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [userData, setUserData] = useState<UserData | null>(null);
 
-  const handleSearch = () => {
-    if (searchTerm.trim()) {
-      alert(`Simulando busca global por: "${searchTerm}"`);
+  useEffect(() => {
+    // Carrega dados do usuário do localStorage
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserData(user);
+      } catch (err) {
+        console.error('Erro ao carregar dados do usuário:', err);
+      }
     }
+  }, []);
+
+  // Pega apenas o primeiro nome
+  const getFirstName = (fullName: string) => {
+    return fullName.split(' ')[0];
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 flex items-center justify-between px-6 py-3">
-      <div className="relative flex-grow max-w-lg mr-8">
-        <input
-          type="text"
-          placeholder="Pesquisar globalmente por placa, cliente, modelo..."
-          className="bg-gray-100 border border-gray-200 rounded-lg py-2 pl-10 pr-4 w-full text-sm focus:ring-1 focus:ring-speedauto-primary focus:border-speedauto-primary"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
-        />
-        <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer" onClick={handleSearch} />
-      </div>
-
+    <header className="bg-white border-b border-gray-200 flex items-center justify-end px-6 py-3">
       <div className="flex items-center gap-5">
-        <FaBell className="text-gray-500 text-xl cursor-pointer" />
+        <FaBell className="text-gray-500 text-xl cursor-pointer hover:text-speedauto-primary transition-colors" />
         <div className="flex items-center gap-3">
-          <img
-            src="https://i.pravatar.cc/36"
-            alt="Avatar do usuário"
-            className="w-9 h-9 rounded-full"
-          />
-          <span className="font-semibold text-gray-800">Olá, Usuário</span>
+          {userData?.foto ? (
+            <img
+              src={userData.foto}
+              alt="Avatar do usuário"
+              className="w-9 h-9 rounded-full object-cover border-2 border-gray-200"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-300">
+              <FaUser className="text-gray-400 text-sm" />
+            </div>
+          )}
+          <span className="font-semibold text-gray-800">
+            Olá, {userData ? getFirstName(userData.nome) : 'Usuário'}!
+          </span>
         </div>
       </div>
     </header>

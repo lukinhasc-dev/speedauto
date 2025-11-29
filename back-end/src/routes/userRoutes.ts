@@ -37,10 +37,16 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Email ou senha incorretos' });
     }
 
-    // Retorna sucesso
+    // Retorna sucesso com dados completos do usuário
     return res.json({
       token: 'fake-jwt-token', // depois a gente implementa JWT de verdade
-      email: user.email,
+      user: {
+        id: user.id,
+        email: user.email,
+        nome: user.nome,
+        telefone: user.telefone,
+        foto: user.foto || null,
+      },
     });
   } catch (err) {
     console.error('Erro no login:', err);
@@ -81,6 +87,30 @@ router.post('/register', async (req, res) => {
     return res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
   } catch (err) {
     console.error('Erro no registro:', err);
+    return res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+});
+
+// ATUALIZAR FOTO
+router.put('/update-photo', async (req, res) => {
+  try {
+    const { userId, fotoUrl } = req.body;
+
+    if (!userId || !fotoUrl) {
+      return res.status(400).json({ message: 'userId e fotoUrl são obrigatórios' });
+    }
+
+    // Atualiza a foto do usuário
+    const { error } = await supabase
+      .from('users')
+      .update({ foto: fotoUrl })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'Foto atualizada com sucesso!', foto: fotoUrl });
+  } catch (err) {
+    console.error('Erro ao atualizar foto:', err);
     return res.status(500).json({ message: 'Erro interno no servidor.' });
   }
 });

@@ -2,10 +2,21 @@ import { supabase } from '../db';
 
 export async function getDashboardStats() {
     try {
+        // Pega o mês e ano atuais
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1; // getMonth() retorna 0-11, então somamos 1
+
+        // Calcula o primeiro e último dia do mês atual
+        const firstDay = new Date(currentYear, currentMonth - 1, 1).toISOString().split('T')[0];
+        const lastDay = new Date(currentYear, currentMonth, 0).toISOString().split('T')[0];
+
         const { data: vendasData, error: vendasError } = await supabase
             .from('vendas')
             .select('valor')
-            .eq('status', 'Concluída');
+            .eq('status', 'Concluída')
+            .gte('data', firstDay)  // maior ou igual ao primeiro dia do mês
+            .lte('data', lastDay);  // menor ou igual ao último dia do mês
 
         if (vendasError) throw new Error(`Supabase Vendas Error: ${vendasError.message}`);
         const vendasNoMes = vendasData.reduce((acc, v: any) => acc + (v.valor || 0), 0);

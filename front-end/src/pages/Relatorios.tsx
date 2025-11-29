@@ -81,6 +81,31 @@ const RevenueChart: React.FC<{ data: RevenueChartData[], dataKey: keyof RevenueC
 
 
 
+/* ----------------- Alert Modal Component ----------------- */
+const AlertModal: React.FC<{ message: string; onClose: () => void }> = ({ message, onClose }) => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+        <div
+            className="bg-white rounded-xl p-8 shadow-2xl w-[420px] mx-4 border border-gray-200 animate-fade-in-up"
+            onClick={(e) => e.stopPropagation()}
+            style={{ minHeight: '200px' }}
+        >
+            <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-speedauto-yellow/20 flex items-center justify-center flex-shrink-0">
+                    <FaReceipt className="text-speedauto-yellow text-2xl" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800">Atenção</h3>
+            </div>
+            <p className="text-gray-600 text-base leading-relaxed mb-8 min-h-[60px] flex items-center">{message}</p>
+            <button
+                onClick={onClose}
+                className="w-full bg-speedauto-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-speedauto-primary-hover transition-all shadow-md hover:shadow-lg"
+            >
+                Fechar
+            </button>
+        </div>
+    </div>
+);
+
 /* ----------------- UI components ----------------- */
 const ReportKpi: React.FC<ReportKpiProps> = ({ title, value, icon, colorClass, trend }) => {
     const isPositive = trend && trend.includes('+');
@@ -132,6 +157,7 @@ const TopTable: React.FC<{ title: string, data: TopItem[], isCurrency?: boolean,
 
 /* ----------------- Main component ----------------- */
 export default function Relatorios() {
+    const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
     // ----------------- HELPERS -----------------
     const downloadCsv = (filename: string, header: string[], rows: string[][]) => {
@@ -154,7 +180,7 @@ export default function Relatorios() {
 
     // ----------------- 1) VEÍCULOS -----------------
     const exportVeiculosCsv = () => {
-        if (!veiculos.length) return alert("Nenhum veículo encontrado.");
+        if (!veiculos.length) return setAlertMessage("Nenhum veículo encontrado.");
 
         const header = [
             "ID", "Marca", "Modelo", "Ano", "Cor", "Combustível",
@@ -171,7 +197,7 @@ export default function Relatorios() {
 
     // ----------------- 2) VENDAS -----------------
     const exportVendasCsv = () => {
-        if (!vendas.length) return alert("Nenhuma venda encontrada.");
+        if (!vendas.length) return setAlertMessage("Nenhuma venda encontrada.");
 
         const header = [
             "ID", "Veículo", "Cliente", "Data",
@@ -192,7 +218,7 @@ export default function Relatorios() {
 
     // ----------------- 3) CLIENTES -----------------
     const exportClientesCsv = () => {
-        if (!vendas.length) return alert("Nenhum cliente encontrado.");
+        if (!vendas.length) return setAlertMessage("Nenhum cliente encontrado.");
 
         const clientesUnicos = [...new Set(vendas.map(v => v.cliente))];
 
@@ -205,7 +231,7 @@ export default function Relatorios() {
     // ----------------- 4) RELATÓRIO GERAL -----------------
     const exportRelatorioGeralCsv = () => {
         if (!veiculos.length && !vendas.length)
-            return alert("Nada para exportar.");
+            return setAlertMessage("Nada para exportar.");
 
         const header = ["Categoria", "Informação"];
         const rows: string[][] = [];
@@ -487,6 +513,9 @@ export default function Relatorios() {
 
     return (
         <>
+            {alertMessage && (
+                <AlertModal message={alertMessage} onClose={() => setAlertMessage(null)} />
+            )}
             <div className="mb-6 flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-800">Relatórios e Análises</h1>

@@ -21,12 +21,15 @@ export default function Login() {
 
     try {
       // chama a API do backend
-      const data: { email: string; token?: string } = await authApi.login(email, senha);
+      const data = await authApi.login(email, senha);
 
       console.log('Login OK', data);
 
-      // aqui você pode salvar o token no localStorage se usar JWT
+      // salva o token e dados do usuário no localStorage
       if (data.token) localStorage.setItem('token', data.token);
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
 
       navigate('/dashboard'); // redireciona
     } catch (err) {

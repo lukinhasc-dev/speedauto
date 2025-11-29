@@ -14,7 +14,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: '*' })); // <== adiciona aqui
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Aumenta limite para 10MB
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use('/veiculos', veiculosRoutes);
 app.use('/vendas', vendasRoutes);

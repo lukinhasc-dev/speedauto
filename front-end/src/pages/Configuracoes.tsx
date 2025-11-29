@@ -22,6 +22,7 @@ export default function Configuracoes() {
     const [showRemoveModal, setShowRemoveModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
+    const [modalType, setModalType] = useState<'success' | 'error' | 'warning'>('success');
 
     // Carrega os dados do usuÃ¡rio do localStorage ao montar o componente
     useEffect(() => {
@@ -61,6 +62,7 @@ export default function Configuracoes() {
             localStorage.setItem('user', JSON.stringify(updatedProfile));
 
             // Mostra modal de sucesso
+            setModalType('success');
             setSuccessMessage({
                 title: 'Foto Atualizada!',
                 message: 'Sua foto de perfil foi atualizada com sucesso e está visível em todo o sistema.'
@@ -93,6 +95,7 @@ export default function Configuracoes() {
             localStorage.setItem('user', JSON.stringify(updatedProfile));
 
             // Mostra modal de sucesso
+            setModalType('success');
             setSuccessMessage({
                 title: 'Foto Removida!',
                 message: 'Sua foto de perfil foi removida com sucesso. Você pode adicionar uma nova a qualquer momento.'
@@ -141,7 +144,12 @@ export default function Configuracoes() {
         }
 
         if (newPass !== confirmPass) {
-            alert('A nova senha e a confirmação não coincidem!');
+            setModalType('error');
+            setSuccessMessage({
+                title: '❌ Senhas não coincidem',
+                message: 'A nova senha e a confirmação não coincidem! Por favor, verifique e tente novamente.'
+            });
+            setShowSuccessModal(true);
             return;
         }
 
@@ -151,13 +159,19 @@ export default function Configuracoes() {
         }
 
         if (newPass.length < 6) {
-            alert('A nova senha deve ter pelo menos 6 caracteres.');
+            setModalType('error');
+            setSuccessMessage({
+                title: '❌ Senha muito curta',
+                message: 'A nova senha deve ter pelo menos 6 caracteres. Por favor, escolha uma senha mais segura.'
+            });
+            setShowSuccessModal(true);
             return;
         }
 
         try {
             await authApi.updatePassword(profile.id, currentPass, newPass);
 
+            setModalType('success');
             setSuccessMessage({
                 title: 'Senha Atualizada!',
                 message: 'Sua senha foi alterada com sucesso. Use a nova senha no próximo login.'
@@ -367,12 +381,13 @@ export default function Configuracoes() {
                 message="Tem certeza que deseja remover sua foto de perfil? VocÃª poderÃ¡ adicionar uma nova a qualquer momento."
             />
 
-            {/* Modal de sucesso */}
+            {/* Modal de sucesso/erro */}
             <SuccessModal
                 isOpen={showSuccessModal}
                 onClose={() => setShowSuccessModal(false)}
                 title={successMessage.title}
                 message={successMessage.message}
+                type={modalType}
                 autoCloseDuration={3000}
             />
         </>

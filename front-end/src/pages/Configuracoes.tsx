@@ -124,15 +124,21 @@ export default function Configuracoes() {
         }
     };
 
-    const handlePasswordSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handlePasswordSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const currentPass = formData.get('senha-atual');
-        const newPass = formData.get('nova-senha');
-        const confirmPass = formData.get('confirmar-senha');
+        const form = e.currentTarget; // Armazena referência do formulário
+        const formData = new FormData(form);
+        const currentPass = formData.get('senha-atual') as string;
+        const newPass = formData.get('nova-senha') as string;
+        const confirmPass = formData.get('confirmar-senha') as string;
+
+        if (!profile) {
+            alert('Usuário não encontrado. Faça login novamente.');
+            return;
+        }
 
         if (newPass !== confirmPass) {
-            alert('As senhas não coincidem!');
+            alert('A nova senha e a confirmação não coincidem!');
             return;
         }
 
@@ -141,13 +147,24 @@ export default function Configuracoes() {
             return;
         }
 
-        if (String(newPass).length < 6) {
+        if (newPass.length < 6) {
             alert('A nova senha deve ter pelo menos 6 caracteres.');
             return;
         }
 
-        alert('Senha alterada com sucesso! (Simulação)');
-        e.currentTarget.reset(); // Limpa o formulário
+        try {
+            await authApi.updatePassword(profile.id, currentPass, newPass);
+
+            setSuccessMessage({
+                title: '🔒 Senha Atualizada!',
+                message: 'Sua senha foi alterada com sucesso. Use a nova senha no próximo login.'
+            });
+            setShowSuccessModal(true);
+            form.reset(); // Usa a referência armazenada
+        } catch (err: any) {
+            console.error('Erro ao atualizar senha:', err);
+            alert(`Erro ao atualizar senha: ${err.response?.data?.message || err.message || 'Erro desconhecido'}`);
+        }
     };
 
 

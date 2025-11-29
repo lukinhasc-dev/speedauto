@@ -14,7 +14,6 @@ export default function MainHeader() {
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    // Carrega dados do usuário do localStorage
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
@@ -26,9 +25,11 @@ export default function MainHeader() {
     }
   }, []);
 
-  // Pega apenas o primeiro nome
-  const getFirstName = (fullName: string) => {
-    return fullName.split(' ')[0];
+  const getFirstName = (fullName?: string | null) => {
+    if (!fullName || typeof fullName !== 'string') return 'Usuário';
+
+    const parts = fullName.trim().split(' ').filter(Boolean);
+    return parts.length > 0 ? parts[0] : 'Usuário';
   };
 
   return (
@@ -49,7 +50,7 @@ export default function MainHeader() {
             </div>
           )}
           <span className="font-semibold text-gray-800">
-            Olá, {userData ? getFirstName(userData.nome) : 'Usuário'}!
+            Olá, {getFirstName(userData?.nome)}!
           </span>
         </div>
       </div>

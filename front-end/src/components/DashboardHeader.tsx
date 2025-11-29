@@ -3,7 +3,7 @@ import { FaUser } from 'react-icons/fa';
 
 interface UserData {
   id: number;
-  nome: string;
+  nome: string | null;
   email: string;
   telefone: string;
   foto: string | null;
@@ -13,21 +13,23 @@ export default function DashboardHeader() {
   const [userData, setUserData] = useState<UserData | null>(null);
 
   useEffect(() => {
-    // Carrega dados do usuário do localStorage
     const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        setUserData(user);
-      } catch (err) {
-        console.error('Erro ao carregar dados do usuário:', err);
-      }
+    if (!userStr) return;
+
+    try {
+      const user = JSON.parse(userStr);
+      setUserData(user);
+    } catch (err) {
+      console.error('Erro ao carregar dados do usuário:', err);
     }
   }, []);
 
-  // Pega apenas o primeiro nome
-  const getFirstName = (fullName: string) => {
-    return fullName.split(' ')[0];
+  // Tratamento seguro
+  const getFirstName = (fullName?: string | null) => {
+    if (!fullName || typeof fullName !== 'string') return 'Usuário';
+
+    const parts = fullName.trim().split(' ').filter(Boolean);
+    return parts.length > 0 ? parts[0] : 'Usuário';
   };
 
   return (
@@ -45,8 +47,9 @@ export default function DashboardHeader() {
               <FaUser className="text-gray-400 text-sm" />
             </div>
           )}
+
           <span className="font-semibold text-gray-800">
-            Olá, {userData ? getFirstName(userData.nome) : 'Usuário'}!
+            Olá, {getFirstName(userData?.nome)}!
           </span>
         </div>
       </div>

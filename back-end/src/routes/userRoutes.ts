@@ -93,19 +93,39 @@ router.post('/register', async (req, res) => {
 
 router.post('/atualiza-senha', async (req, res) => {
   try {
-    const { userId, senha } = req.body;
+    const { userId, senhaAtual, novaSenha } = req.body;
 
-    if (userId === undefined || userId === null) {
-      return res.status(400).json({ message: 'userId é obrigatório' });
+    if (!userId || !senhaAtual || !novaSenha) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
     }
 
-    // Atualiza a senha do usuário
-    const { error } = await supabase
+    // Busca usuário para verificar senha atual
+    const { data: user, error: fetchError } = await supabase
       .from('users')
-      .update({ senha: senha })
+      .select('senha')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError || !user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    // Verifica se a senha atual está correta
+    const isPasswordValid = await bcrypt.compare(senhaAtual, user.senha);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'A senha atual está incorreta' });
+    }
+
+    // Criptografa a nova senha
+    const hashedPassword = await bcrypt.hash(novaSenha, 10);
+
+    // Atualiza a senha do usuário
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ senha: hashedPassword })
       .eq('id', userId);
 
-    if (error) throw error;
+    if (updateError) throw updateError;
 
     return res.status(200).json({ message: 'Senha atualizada com sucesso!' });
   } catch (err) {

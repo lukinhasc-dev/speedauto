@@ -38,3 +38,9 @@ export const updatePhoto = async (userId: number, fotoUrl: string): Promise<{ me
   return response.data;
 };
 
+// Função para atualizar a senha do usuário
+export const updatePassword = async (userId: number, senhaAtual: string, novaSenha: string): Promise<{ message: string }> => {
+  const response = await axios.post(`${API_URL}/atualiza-senha`, { userId, senhaAtual, novaSenha });
+  return response.data;
+};
+

@@ -23,7 +23,7 @@ export default function Configuracoes() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
 
-    // Carrega os dados do usuário do localStorage ao montar o componente
+    // Carrega os dados do usuÃ¡rio do localStorage ao montar o componente
     useEffect(() => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
@@ -32,7 +32,7 @@ export default function Configuracoes() {
                 setProfile(userData);
                 setPhotoInput(userData.foto || '');
             } catch (err) {
-                console.error('Erro ao carregar dados do usuário:', err);
+                console.error('Erro ao carregar dados do usuÃ¡rio:', err);
             }
         }
     }, []);
@@ -52,6 +52,9 @@ export default function Configuracoes() {
 
         setUploading(true);
         try {
+            // Chama a API para salvar a foto no banco de dados
+            await authApi.updatePhoto(profile.id, photoInput);
+
             // Atualiza o estado local e o localStorage
             const updatedProfile = { ...profile, foto: photoInput };
             setProfile(updatedProfile);
@@ -59,8 +62,8 @@ export default function Configuracoes() {
 
             // Mostra modal de sucesso
             setSuccessMessage({
-                title: '✅ Foto Atualizada!',
-                message: 'Sua foto de perfil foi atualizada com sucesso e já está visível em todo o sistema.'
+                title: 'Foto Atualizada!',
+                message: 'Sua foto de perfil foi atualizada com sucesso e está visível em todo o sistema.'
             });
             setShowSuccessModal(true);
         } catch (err: any) {
@@ -91,7 +94,7 @@ export default function Configuracoes() {
 
             // Mostra modal de sucesso
             setSuccessMessage({
-                title: '🗑️ Foto Removida!',
+                title: 'Foto Removida!',
                 message: 'Sua foto de perfil foi removida com sucesso. Você pode adicionar uma nova a qualquer momento.'
             });
             setShowSuccessModal(true);
@@ -156,7 +159,7 @@ export default function Configuracoes() {
             await authApi.updatePassword(profile.id, currentPass, newPass);
 
             setSuccessMessage({
-                title: '🔒 Senha Atualizada!',
+                title: 'Senha Atualizada!',
                 message: 'Sua senha foi alterada com sucesso. Use a nova senha no próximo login.'
             });
             setShowSuccessModal(true);
@@ -249,13 +252,13 @@ export default function Configuracoes() {
                                             </button>
                                         </div>
                                         <p className="text-xs text-gray-500">
-                                            💡 Dica: Escolha fazer upload do seu computador ou colar uma URL de serviços como <a href="https://imgur.com/" target="_blank" rel="noreferrer" className="text-speedauto-primary underline">Imgur</a>.
+                                            Dica: Escolha fazer upload do seu computador ou colar uma URL de serviços como <a href="https://imgur.com/" target="_blank" rel="noreferrer" className="text-speedauto-primary underline">Imgur</a>.
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/*Informações Pessoais */}
+                            {/* Informações Pessoais */}
                             <div className="border border-gray-200 p-6 rounded-lg">
                                 <h3 className="text-lg font-bold text-gray-800 mb-4">Informações Pessoais</h3>
                                 <p className="text-sm text-gray-500 mb-4">Esses dados foram definidos durante o cadastro e não podem ser alterados aqui.</p>
@@ -312,19 +315,19 @@ export default function Configuracoes() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="form-group md:col-span-2">
                                             <label htmlFor="senha-atual" className="block text-sm font-semibold mb-1 text-gray-700">Senha Atual</label>
-                                            <input type="password" name="senha-atual" placeholder='••••••' required
+                                            <input type="password" name="senha-atual" placeholder='••••••••' required
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" />
                                         </div>
 
                                         <div className="form-group">
                                             <label htmlFor="nova-senha" className="block text-sm font-semibold mb-1 text-gray-700">Nova Senha</label>
-                                            <input type="password" name="nova-senha" placeholder='••••••' required
+                                            <input type="password" name="nova-senha" placeholder='••••••••' required
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" />
                                         </div>
 
                                         <div className="form-group">
                                             <label htmlFor="confirmar-senha" className="block text-sm font-semibold mb-1 text-gray-700">Confirmar Nova Senha</label>
-                                            <input type="password" name="confirmar-senha" placeholder='••••••' required
+                                            <input type="password" name="confirmar-senha" placeholder='••••••••' required
                                                 className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:border-speedauto-primary focus:ring-2 focus:ring-speedauto-primary/50" />
                                         </div>
                                     </div>
@@ -361,7 +364,7 @@ export default function Configuracoes() {
                 onConfirm={confirmRemovePhoto}
                 previewUrl={profile?.foto || undefined}
                 title="Remover Foto de Perfil"
-                message="Tem certeza que deseja remover sua foto de perfil? Você poderá adicionar uma nova a qualquer momento."
+                message="Tem certeza que deseja remover sua foto de perfil? VocÃª poderÃ¡ adicionar uma nova a qualquer momento."
             />
 
             {/* Modal de sucesso */}

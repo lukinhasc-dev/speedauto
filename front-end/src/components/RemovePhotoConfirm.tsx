@@ -1,4 +1,4 @@
-import { IoWarningOutline, IoClose, IoImageOutline, IoTrashBin } from "react-icons/io5";
+import { IoClose, IoTrashBin } from "react-icons/io5";
 
 interface RemovePhotoConfirmProps {
     isOpen: boolean;

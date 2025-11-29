@@ -462,7 +462,7 @@ export default function Relatorios() {
     const exportCsv = () => {
         const data = vendasNoPeriodo;
         if (!data || data.length === 0) {
-            alert('Nenhuma venda encontrada no período selecionado.');
+            setAlertMessage('Nenhuma venda encontrada no período selecionado.');
             return;
         }
 

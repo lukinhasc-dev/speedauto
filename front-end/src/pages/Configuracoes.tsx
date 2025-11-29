@@ -52,8 +52,6 @@ export default function Configuracoes() {
 
         setUploading(true);
         try {
-            const response = await authApi.updatePhoto(profile.id, photoInput);
-
             // Atualiza o estado local e o localStorage
             const updatedProfile = { ...profile, foto: photoInput };
             setProfile(updatedProfile);

@@ -5,12 +5,11 @@ import bcrypt from 'bcrypt';
 
 const router = Router();
 
-// Configuração do Supabase
 const supabaseUrl = process.env.SUPABASE_URL || 'https://ndnvvuqqfwxexjvylddq.supabase.co/';
 const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbnZ2dXFxZnd4ZXhqdnlsZGRxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTM2MzY1MywiZXhwIjoyMDc0OTM5NjUzfQ.yl7MLF_3GxY-snXtua8G6wBwk6-BWL_TsD5fY30SK1s';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// LOGIN
+
 router.post('/login', async (req, res) => {
   try {
     const { email, senha } = req.body;
@@ -91,7 +90,30 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// ATUALIZAR FOTO
+
+router.post('/atualiza-senha', async (req, res) => {
+  try {
+    const { userId, senha } = req.body;
+
+    if (userId === undefined || userId === null) {
+      return res.status(400).json({ message: 'userId é obrigatório' });
+    }
+
+    // Atualiza a senha do usuário
+    const { error } = await supabase
+      .from('users')
+      .update({ senha: senha })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'Senha atualizada com sucesso!' });
+  } catch (err) {
+    console.error('Erro ao atualizar senha:', err);
+    return res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+})
+
 router.put('/update-photo', async (req, res) => {
   try {
     const { userId, fotoUrl } = req.body;

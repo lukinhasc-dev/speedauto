@@ -1,6 +1,6 @@
 // src/components/MainHeader.tsx
 import { useState, useEffect } from 'react';
-import { FaBell, FaUser } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 
 interface UserData {
   id: number;
@@ -36,7 +36,6 @@ export default function MainHeader() {
       <div className="flex-grow"></div>
 
       <div className="flex items-center gap-5">
-        <FaBell className="text-gray-500 text-xl cursor-pointer hover:text-speedauto-primary transition-colors" />
         <div className="flex items-center gap-3">
           {userData?.foto ? (
             <img

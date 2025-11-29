@@ -1,7 +1,8 @@
 import React, { useState, useEffect, type FormEvent } from 'react';
-import { FaUser, FaLock, FaBell, FaUpload, FaTrash, FaCheckCircle, FaCamera } from 'react-icons/fa';
+import { FaUser, FaLock, FaUpload, FaTrash, FaCheckCircle, FaCamera } from 'react-icons/fa';
 import * as authApi from '../api/authApi';
 import RemovePhotoConfirm from '../components/RemovePhotoConfirm';
+import SuccessModal from '../components/SuccessModal';
 
 // --- Interfaces ---
 interface UserProfile {
@@ -12,40 +13,15 @@ interface UserProfile {
     foto: string | null;
 }
 
-// --- Componente Toggle (Switch) Reutilizável ---
-interface ToggleProps {
-    label: string;
-    description: string;
-    checked: boolean;
-    onChange: () => void;
-}
-
-const ToggleSwitch: React.FC<ToggleProps> = ({ label, description, checked, onChange }) => (
-    <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
-        <div className="max-w-md">
-            <h3 className="text-sm font-semibold text-gray-800">{label}</h3>
-            <p className="text-xs text-gray-500 mt-1">{description}</p>
-        </div>
-        <label className="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-speedauto-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-speedauto-primary"></div>
-        </label>
-    </div>
-);
-
 
 export default function Configuracoes() {
-    const [activeTab, setActiveTab] = useState<'perfil' | 'seguranca' | 'notificacoes'>('perfil');
+    const [activeTab, setActiveTab] = useState<'perfil' | 'seguranca'>('perfil');
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [photoInput, setPhotoInput] = useState('');
     const [uploading, setUploading] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
-
-    const [notifications, setNotifications] = useState({
-        emailLeads: true,
-        emailVendas: true,
-        resumoDiario: false,
-    });
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
 
     // Carrega os dados do usuário do localStorage ao montar o componente
     useEffect(() => {
@@ -83,7 +59,12 @@ export default function Configuracoes() {
             setProfile(updatedProfile);
             localStorage.setItem('user', JSON.stringify(updatedProfile));
 
-            alert('Foto atualizada com sucesso!');
+            // Mostra modal de sucesso
+            setSuccessMessage({
+                title: '✅ Foto Atualizada!',
+                message: 'Sua foto de perfil foi atualizada com sucesso e já está visível em todo o sistema.'
+            });
+            setShowSuccessModal(true);
         } catch (err: any) {
             console.error('Erro ao atualizar foto:', err);
             alert(`Erro ao atualizar foto: ${err.response?.data?.message || err.message || 'Erro desconhecido'}`);
@@ -110,7 +91,12 @@ export default function Configuracoes() {
             setPhotoInput('');
             localStorage.setItem('user', JSON.stringify(updatedProfile));
 
-            alert('Foto removida com sucesso!');
+            // Mostra modal de sucesso
+            setSuccessMessage({
+                title: '🗑️ Foto Removida!',
+                message: 'Sua foto de perfil foi removida com sucesso. Você pode adicionar uma nova a qualquer momento.'
+            });
+            setShowSuccessModal(true);
         } catch (err: any) {
             console.error('Erro ao remover foto:', err);
             alert(`Erro ao remover foto: ${err.response?.data?.message || err.message || 'Erro desconhecido'}`);
@@ -166,10 +152,6 @@ export default function Configuracoes() {
         e.currentTarget.reset(); // Limpa o formulário
     };
 
-    const handleNotificationToggle = (key: keyof typeof notifications) => {
-        setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
-    };
-
 
     return (
         <>
@@ -193,12 +175,6 @@ export default function Configuracoes() {
                         className={`py-3 px-6 text-sm font-semibold flex items-center gap-2 transition-all ${activeTab === 'seguranca' ? 'text-speedauto-primary border-b-2 border-speedauto-primary' : 'text-gray-500 hover:text-gray-800'}`}
                     >
                         <FaLock /> Segurança
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('notificacoes')}
-                        className={`py-3 px-6 text-sm font-semibold flex items-center gap-2 transition-all ${activeTab === 'notificacoes' ? 'text-speedauto-primary border-b-2 border-speedauto-primary' : 'text-gray-500 hover:text-gray-800'}`}
-                    >
-                        <FaBell /> Notificações
                     </button>
                 </div>
 
@@ -360,35 +336,6 @@ export default function Configuracoes() {
                         </form>
                     )}
 
-                    {/* ---NOTIFICAÇÕES --- */}
-                    {activeTab === 'notificacoes' && (
-                        <div className="p-6 space-y-8">
-                            <div className="border border-gray-200 p-6 rounded-lg">
-                                <h3 className="text-lg font-bold text-gray-800 mb-4">Notificações por E-mail</h3>
-                                <p className="text-sm text-gray-500 mb-4">Escolha quais atualizações de sistema você deseja receber.</p>
-
-                                <ToggleSwitch
-                                    label="Novos Leads"
-                                    description="Receber um alerta imediato quando um novo lead ou contato entrar no CRM."
-                                    checked={notifications.emailLeads}
-                                    onChange={() => handleNotificationToggle('emailLeads')}
-                                />
-                                <ToggleSwitch
-                                    label="Vendas Concluídas"
-                                    description="Receber uma confirmação sempre que uma transação for marcada como 'Concluída'."
-                                    checked={notifications.emailVendas}
-                                    onChange={() => handleNotificationToggle('emailVendas')}
-                                />
-                                <ToggleSwitch
-                                    label="Resumo Diário de Atividades"
-                                    description="Receber um e-mail consolidado no final do dia com as estatísticas."
-                                    checked={notifications.resumoDiario}
-                                    onChange={() => handleNotificationToggle('resumoDiario')}
-                                />
-
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
 
@@ -400,6 +347,15 @@ export default function Configuracoes() {
                 previewUrl={profile?.foto || undefined}
                 title="Remover Foto de Perfil"
                 message="Tem certeza que deseja remover sua foto de perfil? Você poderá adicionar uma nova a qualquer momento."
+            />
+
+            {/* Modal de sucesso */}
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                title={successMessage.title}
+                message={successMessage.message}
+                autoCloseDuration={3000}
             />
         </>
     );

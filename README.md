@@ -59,7 +59,7 @@ cd speedauto-HTML-fd
 
 ### Deploy
 
-🌐 **Acesse a versão online:** [speedauto.vercel.app](https://speedauto.vercel.app)
+🌐 **Acesse a versão online:** [speedauto.vercel.app](https://speedauto-dun.vercel.app/)
 
 ## 📚 Documentação
 
@@ -72,6 +72,20 @@ A documentação inclui:
 - Explicação de animações e interações
 - Instruções de instalação e deploy
 - Informações sobre a equipe
+
+## 🔐 Acesso ao Sistema
+
+Para utilizar todas as funcionalidades da plataforma, é necessário criar uma conta de administrador.
+
+📝 Criar Conta
+
+Para se cadastrar no sistema, acesse:
+👉 https://speedauto-dun.vercel.app/admin-cadastrar
+
+🔑 Login
+
+Se você já possui cadastro, acesse o sistema por:
+👉 https://speedauto-dun.vercel.app/
 
 ## 👥 Equipe de Desenvolvimento
 
